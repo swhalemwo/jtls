@@ -132,12 +132,15 @@ mem_tester <- function(expr, n) {
 #' @param: pltname
 #' @export
 wplt <- function(pltname, c_plts = do.call("gc_plts", c_pltargs)) {
+    if (as.character(match.call()[[1]]) %in% fstd){browser()}
+    1;1;1;1;1;1;1;1;1;1;1;1;1;1;1;1;1;1;1;1;1;1;1;1;1;1;1;
 
     ## get config
     c_plt <- chuck(c_plts, pltname)
     
     ## write to file
-    pdf(paste0(FIG_DIR, pltname, ".pdf"), width = chuck(c_plt, "width"), height = chuck(c_plt, "height"))
+    pdf(paste0(chuck(c_dirs, "figs"), pltname, ".pdf"),
+        width = chuck(c_plt, "width"), height = chuck(c_plt, "height"))
     plot(chuck(l_plts, pltname))
     dev.off()
     
@@ -161,7 +164,7 @@ dpltR <- function(pltname) {
 #' @export
 dpltF <- function(pltname) {
 
-    filename <- paste0(FIG_DIR, pltname, ".pdf")
+    filename <- paste0(chuck(c_dirs, "figs"), pltname, ".pdf")
 
     ## checking whether file is open:
     ## copied from custom_funcs, used in reg_anls.R
