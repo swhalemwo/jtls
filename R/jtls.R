@@ -140,9 +140,16 @@ wplt <- function(pltname, c_plts = do.call("gc_plts", c_pltargs)) {
     
     ## write to file
     pdf(paste0(chuck(c_dirs, "figs"), pltname, ".pdf"),
-        width = chuck(c_plt, "width"), height = chuck(c_plt, "height"))
+        width = chuck(c_plt, "width")/2.54, height = chuck(c_plt, "height")/2.54)
     plot(chuck(l_plts, pltname))
     dev.off()
+
+    png(paste0(chuck(c_dirs, "figs"), pltname, ".png"),
+        width = chuck(c_plt, "width")/2.54, height = chuck(c_plt, "height")/2.54, units = "in", res=300)
+    plot(chuck(l_plts, pltname))
+    dev.off()
+
+    
     
 }
 
