@@ -308,6 +308,35 @@ wd_nbrs <- function(dt_nbrs) {
 
 
 
+#' generate and write to file the arguments a function is called with to generate callgraph
+#' 
+#' "gw_fargs(match.call())" has to be inserted in a function definition
+#' uses the original object name used in parameter via NES
+#' works with do.call() as long as stuff is quoted (what it should be for data objects of substantial size)
+#' requires c_dirs: list of directories, one of them named "tbls": appends to a csv file there,
+#' which is later read by "cl_clgr_objs"
+#' @export
+#' @param matched_call: just put match.call() there
+gw_fargs <- function(matched_call) {
+    callstr <- matched_call %>% deparse
+
+    fname <- as.character(matched_call[[1]])
+
+    ## nchar(call_str)
+    fargs_str <- substring(callstr, nchar(fname) + 2, nchar(callstr)-1) # remove function name and brackets
+
+    ## parse function arguments
+    dt_fargs <- strsplit(fargs_str, ",")[[1]] %>% 
+        lapply(\(x) strsplit(x, "=")[[1]] %>% trimws %>%
+                setNames(c("param_name", "param_value")) %>% as.list) %>% rbindlist
+
+    ## reorder columns
+    dt_fargs <- dt_fargs[, .(fname = fname, param_name, param_value)]
+
+    fwrite(dt_fargs, paste0(c_dirs$tbls, "farg_calls.csv"), append = T)
+}
+
+
 
 #' generate function links with mvbutils::foodweb
 #'
