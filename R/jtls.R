@@ -441,3 +441,32 @@ gwd_clgrph <- function() {
 
     dpltF("callgraph")
 }
+
+
+#' quick way of getting model object names written as model names
+#'
+#' uses NSE -> doesn't work with list of models previously defined
+#' also requires a list (can't just use a single model as in screenreg)
+#'
+#' basically intended for quick and dirty model results inspection where I'm not sure
+#' if i'll write a proper model exporting/formating function
+#' @export
+#' @param mdl_list list of regression models
+#' @param ... other screenreg arguments
+screenreg2 <- function(mdl_list, ...) {
+
+    input_string <- match.call() %>% deparse
+    pattern <- "mdl_list = list\\(.*?\\)"
+
+    ## Extract the model list argument 
+    mdl_names_prep1 <- regmatches(input_string, gregexpr(pattern, input_string)) %>% chuck(1)
+
+    ## yeet the "mdl_list = list"
+    c_mdl_names <- substring(mdl_names_prep1, 17, nchar(mdl_names_prep1)-1) %>%
+        strsplit(",") %>% unlist %>% trimws
+
+    ## pass custom model names as argument, all other arguments stay
+    screenreg(mdl_list, custom.model.names = c_mdl_names, ...)
+
+
+}
