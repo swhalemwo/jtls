@@ -454,8 +454,9 @@ gwd_clgrph <- function() {
 #' @param mdl_list list of regression models
 #' @param ... other screenreg arguments
 screenreg2 <- function(mdl_list, ...) {
-
-    input_string <- match.call() %>% deparse
+    if (as.character(match.call()[[1]]) %in% fstd){browser()}
+    
+    input_string <- match.call() %>% deparse %>% paste0(collapse = "")
     pattern <- "mdl_list = list\\(.*?\\)"
 
     ## Extract the model list argument 
