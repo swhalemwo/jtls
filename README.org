@@ -1,1 +1,58 @@
 * collection of tools that J finds useful
+
+tools included: 
+
+** callgraph
+
+- gl_clgr_objs: generate list of callgraph objects
+  - edges
+  - nodes
+- gg_clgrph: generate a with 
+- gw_fargs
+- gl_funlinks
+- gwd: clgrph
+
+
+** custom plotting framework
+
+main activities are:
+- generate -> gplt
+- display -> dplt
+- write -> wplt
+
+rely on globally object l_plts: list of plots, where plots are stored by name (allows quick display/writing without regenerating plot)
+
+some helper functions for common tasks:
+- gdplt: generate plot and display in R
+- dpltF: display plot written to pdf file (with zathura)
+- dpltR: display plot in R 
+- gwdplt: generate, write, display plot as pdf
+- wdplt: write and display plot 
+
+
+#+begin_src dot :file custom-plotting-framework.pdf
+
+digraph D {
+  node [shape = "box"]
+  gplt -> l_plts [label = "creates plot and assigns to"]
+  l_plts -> dplt [label = "reads from and displays"]
+  l_plts -> wplt [label = "reads from and writes to file"]
+
+}
+
+
+
+#+end_src
+
+#+RESULTS:
+[[file:custom-plotting-framework.pdf]]
+
+** custom number reference framework
+gc_refplt: generate the in-text references to plots (from a globally available `gc_plts` function)
+gc_ynkplt: generate the yank-plots (spaces where the actual plots appear) 
+wd_nbrs: write the data.table of number in the actual org-file to org-macros
+
+
+
+
+
