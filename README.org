@@ -10,7 +10,7 @@ tools included:
 - gg_clgrph: generate a with 
 - gw_fargs
 - gl_funlinks
-- gwd: clgrph
+- gwd_clgrph: generate, write, display callgraph
 
 
 ** custom plotting framework
