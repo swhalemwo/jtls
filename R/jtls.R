@@ -1,11 +1,12 @@
 
 #' @import magrittr
-#' @import Rgraphviz
 #' @import graph
 #' @import data.table
 #' @importFrom mvbutils foodweb
 
 .datatable.aware = T
+
+
 
 
 #' exports a dataframe to a spreadsheet for inspection
@@ -608,8 +609,8 @@ parse_clgrph_todot <- function(l_gobjs) {
 #' uses c_dirs and dpltF
 #' @export
 gwd_clgrph <- function() {
-    if (as.character(match.call()[[1]]) %in% fstd){browser()}
-    1;1;1;1;1;1;1;1;1;1;1;1;1;1;1;1;1;1;1;1;1;1;1;1;1;1;1;
+    ## if (as.character(match.call()[[1]]) %in% fstd){browser()}
+    ## 1;1;1;1;1;1;1;1;1;1;1;1;1;1;1;1;1;1;1;1;1;1;1;1;1;1;1;
 
     ## old version based on Rgraphviz
     ## px <- gl_clgr_objs() %>% gg_clgrph
