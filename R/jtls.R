@@ -623,10 +623,10 @@ gwd_clgrph <- function() {
 
     callgraph_parsed <- gl_clgr_objs() %>% parse_clgrph_todot
 
-    writeLines(callgraph_parsed, paste0(c_dirs$tbls, "callgraph2.dot"))
+    writeLines(callgraph_parsed, paste0(c_dirs$misc, "callgraph2.dot"))
 
     system(sprintf("dot -Tpdf -o %s %s", paste0(c_dirs$figs, "callgraph2.pdf"),
-                   paste0(c_dirs$tbls, "callgraph2.dot")))
+                   paste0(c_dirs$misc, "callgraph2.dot")))
 
     dpltF("callgraph2")
 
