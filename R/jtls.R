@@ -551,6 +551,11 @@ gg_clgrph <- function(l_gobjs) {
 }
 
 
+#' custom parsing of l_gobjs (list of dts with nodes and edges) to dot language
+#' somewhat ugly but necessary to get subgraphs (not supported by Rgraphviz or DiagrammeR)
+#'
+#' @param l_gobjs list of data.tables, nodes and edges
+#' @return parsed (string) representation of callgraph 
 parse_clgrph_todot <- function(l_gobjs) {
     if (as.character(match.call()[[1]]) %in% fstd){browser()}
     1;1;1;1;1;1;1;1;1;1;1;1;1;1;1;1;1;1;1;1;1;1;1;1;1;1;1;
@@ -578,7 +583,7 @@ parse_clgrph_todot <- function(l_gobjs) {
           cluster]
 
     str_cluster_parsed <- dt_cluster_parsed[, paste0(cluster_parsed, collapse = "\n\n")]
-    cat(str_cluster_parsed)
+    ## cat(str_cluster_parsed)
 
     ## parse edges, respecting cluster boundaries
     ## overspecify: specify both ltail and lhead for any edge involved with cluster even if not necessary
@@ -589,7 +594,7 @@ parse_clgrph_todot <- function(l_gobjs) {
                                           sprintf("[lhead=%s,ltail=%s]", edge_end, edge_start), ""))]
 
     str_edges_parsed <- dt_edges_parsed[,  paste0(gsub("\\$", "__", edge_parsed), collapse = "; \n")]
-    cat(str_edges_parsed)
+    ## cat(str_edges_parsed)
 
     graph_parsed <- sprintf("digraph D {\n %s %s %s \n %s \n %s \n %s }",
                             "compound = true;\n splines = false; fontname=helvetica;\n", # graph attributes
@@ -606,7 +611,9 @@ parse_clgrph_todot <- function(l_gobjs) {
 
 #' generate, write and display the callgraph
 #'
-#' uses c_dirs and dpltF
+#' queries the global environent for the callgraph relations
+#' opens newly constructed callgraph as side effect
+#' uses/requires c_dirs and dpltF
 #' @export
 gwd_clgrph <- function() {
     ## if (as.character(match.call()[[1]]) %in% fstd){browser()}
