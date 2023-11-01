@@ -182,10 +182,12 @@ dpltF <- function(pltname) {
     ## copied from custom_funcs, used in reg_anls.R
     ## gonna be fun porting that over..
 
-    open_check_cmd <- paste0("lsof -w ", filename)
-    open_check_res <- system(open_check_cmd, intern = T)
+    open <- check_if_file_is_open(filename)
 
-    open <- is.null(attr(open_check_res, "status"))
+    ## open_check_cmd <- paste0("lsof -w ", filename)
+    ## open_check_res <- system(open_check_cmd, intern = T)
+
+    ## open <- is.null(attr(open_check_res, "status"))
     
     if (!open)  {
         open_cmd <- paste0("zathura ", filename, " &")
@@ -195,6 +197,7 @@ dpltF <- function(pltname) {
     }
          
 }
+
 
 
 #' generate and display plot (intended to use after function change)
@@ -349,7 +352,7 @@ gl_funlinks <- function() {
 
 
     funcs_to_yeet <- .c(atb, adt,len, print.data.table, print_data_table, adf, achr, anum, gw_fargs, gl_funlinks,
-                        gl_funmat, gg_clgrph, gc_locs, gc_plts, gd_nbrs, gl_clgr_objs, gc_clgrphattrs)
+                        gl_funmat, gg_clgrph, gc_dirs, gc_plts, gd_nbrs, gl_clgr_objs, gc_clgrphattrs)
 
     dt_funmat_edges_prep <- fw$funmat[rownames(fw$funmat) %!in% funcs_to_yeet, # yeet unneeded rows
                                       colnames(fw$funmat) %!in% funcs_to_yeet] %>%  # yeet unneeded columns
@@ -718,6 +721,160 @@ rcd_iso3c_reg6 <- function(iso3cs) {
     map_chr(regs_unreg, ~rcd_iso3c_reg6_sub(.x, reg_cbn_rcd_list))
 
 }
+
+#' uses lsof to see if filename is open
+#' mostly used for pdf output
+check_if_file_is_open <- function(filename) {
+    open_check_cmd <- paste0("lsof -w ", filename)
+    open_check_res <- suppressWarnings(system(open_check_cmd, intern = T))
+    
+    ## if an attribute is returned (rather than being null), file is not open
+    open <- is.null(attr(open_check_res, "status"))
+
+    return(open)
+
+
+}
+
+
+#' open rendered table 
+#' @export
+dtblF <- function(tblname) {
+
+    filename <- paste0(chuck(c_dirs, "tbls"), tblname, ".pdf")
+
+    open <- check_if_file_is_open(filename)
+
+    if (!open)  {
+        open_cmd <- paste0("zathura ", filename, " &")
+        system(open_cmd)
+    } else if (open) {
+        print(sprintf("%s already open", pltname))
+    }
+
+
+}
+
+
+
+#'  write a table to a tex file 
+wtbl <- function(tblname, c_tbls = do.call("gc_tbls", c_tblargs)) {
+    
+    ## are there even meaningful tbl configs? there's caption
+    ## but can also put in the gt functions tbh
+    ## the main reason for plots was width and height: you can see a plot without specifying them
+    ## could make sense for caption (change caption without re-generating table)
+    ## but really don't see the need for a separate data structure just for that
+    ## generating the tables shouldn't take super long: expensive computations should be done before, not in gt_x
+
+    
+    ## get table, add filename to config
+    c_tbl <- chuck(l_tbls, tblname) %>%
+        c(list(file = paste0(chuck(c_dirs, "tbls"), tblname, ".tex")))
+
+    do.call("print.xtable", c_tbl)
+
+    ## assign landscape if set
+    if ("landscape" %in% names(c_tbl)) {
+        if (c_tbl$landscape) {
+            texput_file <- "texput_landscape.tex"
+        } else {
+            texput_file <- "texput.tex"
+        }
+    } else {
+        texput_file <- "texput.tex"
+    }
+
+    
+    
+}
+
+
+
+dtbl <- function(dtx, crop = T, landscape = F, ...) {
+    if (as.character(match.call()[[1]]) %in% fstd){browser()}
+    1;1;1;1;1;1;1;1;1;1;1;1;1;1;1;1;1;1;1;1;1;1;1;1;1;1;1;
+    #' preview table as latex table as pdf
+
+    if ("xtable" %!in% class(dtx)) {
+        xtbl <- xtable(dtx)
+    } else {
+        xtbl <- dtx
+    }
+
+    tmp_dir <- "/tmp/"
+    tmp_file_tex <- "pvlt_input.tex"
+    
+    tmp <- paste0(tmp_dir, tmp_file_tex)
+
+    ## pvlt_list <- as.list(substitute(list(...)))
+    ## pvlt_list2 <- c(pvlt_list, list(x = xtbl, file = tmp, include.rownames = F))
+    ## pvlt_list2 <- list(x = xtbl, file = tmp, include.rownames = F, sanitize.text.function = identity)
+    pvlt_list <- c(list(...), list(x = xtbl, file = tmp, include.rownames = F, sanitize.text.function = identity))
+    
+    do.call("print.xtable", pvlt_list)
+
+    ## print.xtable(xtbl, file = tmp, include.rownames = F, ...)
+        
+    ## just use most barebones latex command for now
+    ##  from: https://tex.stackexchange.com/questions/302788/how-to-get-the-pdf-of-a-compiled-table-only
+    ## cmplcmd <- "pdflatex '\\documentclass{article}\\pagestyle{empty}\\begin{document}\\input{prvlt.tex}\\end{document}'"
+
+    ## if landscape option: use different base file with landscaped setting
+    texput_file <- "texput.tex"
+    if (landscape) {
+        texput_file <- "texput_landscape.tex"
+    }
+
+    ## print(texput_file)
+
+    cmplcmd <- sprintf("cp /home/johannes/Dropbox/technical_stuff_general/dotfiles/%s /tmp/texput.tex %s",
+                       texput_file, " && pdflatex texput.tex")
+
+    cmplcmd2 <- paste0("cd /tmp && ", cmplcmd)
+        
+    system(cmplcmd2)
+    
+    ## crop command pdfcrop needed to focus on table
+    if (crop) {
+        crop_cmd <- "cd /tmp && pdfcrop texput.pdf"
+    } else {
+        crop_cmd <- "cd /tmp && cp texput.pdf texput-crop.pdf"
+    }
+    system(crop_cmd)
+
+    ## somewhat annoying check with lsof
+    open_check_cmd <- "lsof -w /tmp/texput-crop.pdf"
+    open_check_res <- system(open_check_cmd, intern = T)
+    
+    ## if an attribute is returned (rather than being null), file is not open
+    open <- is.null(attr(open_check_res, "status"))
+
+    if (!open) {
+        open_cmd <- "zathura /tmp/texput-crop.pdf & "
+        system(open_cmd)
+    }
+        
+    invisible(NULL)
+
+}
+
+
+
+dxtbl <- function(xtbl_cfg, crop = T, landscape = F) {
+    if (as.character(match.call()[[1]]) %in% fstd){browser()}
+    1;1;1;1;1;1;1;1;1;1;1;1;1;1;1;1;1;1;1;1;1;1;1;1;1;1;1;
+    #' generic xtable preview command
+
+    xtable(xtbl_cfg$dt_fmtd, align = xtbl_cfg$align_cfg) %>%
+        dtbl(add.to.row = xtbl_cfg$add_to_row,
+             include.colnames = F,
+             hline.after = xtbl_cfg$hline_after,
+             crop = crop,
+             landscape = landscape)
+    
+}
+
 
 
 
