@@ -334,7 +334,7 @@ gw_fargs <- function(matched_call) {
     ## reorder columns
     dt_fargs <- dt_fargs[, .(fname = fname, param_name, param_value)]
 
-    fwrite(dt_fargs, paste0(c_dirs$tbls, "farg_calls.csv"), append = T)
+    fwrite(dt_fargs, paste0(c_dirs$misc, "farg_calls.csv"), append = T)
 }
 
 
@@ -479,7 +479,7 @@ gl_clgr_objs <- function() {
         
 
     ## evaluate the farg_calls file (input arguments)
-    dt_fargs <- fread(paste0(c_dirs$tbls, "farg_calls.csv"))[, .(caller = fname, called = param_value)] %>%
+    dt_fargs <- fread(paste0(c_dirs$misc, "farg_calls.csv"))[, .(caller = fname, called = param_value)] %>%
         unique %>% 
         .[is.na(as.logical(called))] %>% # filter out logical switches
         .[, linktype := "fun-obj"]
