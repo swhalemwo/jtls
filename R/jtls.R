@@ -353,7 +353,8 @@ gl_funlinks <- function() {
 
 
     funcs_to_yeet <- .c(atb, adt,len, print.data.table, print_data_table, adf, achr, anum, gw_fargs, gl_funlinks,
-                        gl_funmat, gg_clgrph, gc_dirs, gc_plts, gd_nbrs, gl_clgr_objs, gc_clgrphattrs)
+                        gl_funmat, gg_clgrph, gc_dirs, gc_plts, gd_nbrs, gl_clgr_objs, gc_clgrphattrs,
+                        gc_tbls)
 
     dt_funmat_edges_prep <- fw$funmat[rownames(fw$funmat) %!in% funcs_to_yeet, # yeet unneeded rows
                                       colnames(fw$funmat) %!in% funcs_to_yeet] %>%  # yeet unneeded columns
