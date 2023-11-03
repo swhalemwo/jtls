@@ -34,7 +34,18 @@ some helper functions for common tasks:
 
 digraph D {
   node [shape = "box"]
-  gplt -> l_plts [label = "creates plot and assigns to"]
+  gp_X[label="gp_X: \ntakes in data, produces ggplot"]
+  gc_plts[label="gc_plts:\n configuration for plots"]
+  gplt[label="gplt:\ndo.call(gp_X)"]
+
+  data -> gp_X
+  other_params -> gp_X
+
+  gc_plts -> data
+  gc_plts -> other_params
+  gc_plts -> gplt
+  gp_X -> gplt
+  gplt -> l_plts [label = "creates plot and assigns it to"]
   l_plts -> dplt [label = "reads from and displays"]
   l_plts -> wplt [label = "reads from and writes to file"]
 
@@ -46,6 +57,23 @@ digraph D {
 
 #+RESULTS:
 [[file:custom-plotting-framework.pdf]]
+
+** custom table framwork
+similar idea as plotting framework: 
+
+- gt_X: takes in data, generates table list of
+  - dt_fmd: data.table with cells
+  - hline_after: positioning of hlines
+  - align_cfg: latex-table columm specification
+  - add_to_row: rows added afterwards (actually not sure this is a good usage)
+  - optional: landscape, default = F
+    
+- gtbl: generates table-object list, places it in l_tbls
+- wtbl: parses l_tbls object to xtable, then writes to tex file and cropped pdf file
+- dtbl: displays cropped pdf file
+
+
+
 
 ** custom number reference framework
 gc_refplt: generate the in-text references to plots (from a globally available `gc_plts` function)

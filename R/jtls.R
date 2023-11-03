@@ -3,6 +3,7 @@
 #' @import graph
 #' @import data.table
 #' @importFrom mvbutils foodweb
+#' @importFrom xtable xtable print.xtable
 
 .datatable.aware = T
 
@@ -724,6 +725,7 @@ rcd_iso3c_reg6 <- function(iso3cs) {
 
 #' uses lsof to see if filename is open
 #' mostly used for pdf output
+#' @export
 check_if_file_is_open <- function(filename) {
     open_check_cmd <- paste0("lsof -w ", filename)
     open_check_res <- suppressWarnings(system(open_check_cmd, intern = T))
@@ -740,44 +742,62 @@ check_if_file_is_open <- function(filename) {
 #' open rendered table 
 #' @export
 dtblF <- function(tblname) {
+    if (as.character(match.call()[[1]]) %in% fstd){browser()}
+    1;1;1;1;1;1;1;1;1;1;1;1;1;1;1;1;1;1;1;1;1;1;1;1;1;1;1;
 
     filename <- paste0(chuck(c_dirs, "tbls"), tblname, ".pdf")
 
     open <- check_if_file_is_open(filename)
 
-    if (!open)  {
+    if (!open) {
         open_cmd <- paste0("zathura ", filename, " &")
         system(open_cmd)
+    
     } else if (open) {
-        print(sprintf("%s already open", pltname))
+        print(sprintf("%s already open", tblname))
     }
-
 
 }
 
 
 
-#'  write a table to a tex file 
+#' take a table from l_tbls, write it to a tex and (cropped) pdf file
+#' @export
 wtbl <- function(tblname, c_tbls = do.call("gc_tbls", c_tblargs)) {
+    if (as.character(match.call()[[1]]) %in% fstd){browser()}
+    1;1;1;1;1;1;1;1;1;1;1;1;1;1;1;1;1;1;1;1;1;1;1;1;1;1;1;
+ 
+    filename_tex <- paste0(chuck(c_dirs, "tbls"), tblname, ".tex")
+    filename_pdf <- paste0(chuck(c_dirs, "tbls"), tblname, ".pdf")
+
+    ## get table
+    tx <- chuck(l_tbls, tblname)
+ 
+    ## process the table result into xtable
+    tx_procd <- xtable(tx$dt_fmtd, caption = tx$caption, label = tblname, align = tx$align_cfg)
+
+    ## create config that can be called by print.xtable
+    tx_towrite <- list(x=tx_procd, include.rownames = F, include.colnames = F,
+                       file = filename_tex,
+                       sanitize.text.function = identity,
+                       add.to.row = tx$add_to_row,
+                       hline.after = tx$hline_after)
     
-    ## are there even meaningful tbl configs? there's caption
-    ## but can also put in the gt functions tbh
-    ## the main reason for plots was width and height: you can see a plot without specifying them
-    ## could make sense for caption (change caption without re-generating table)
-    ## but really don't see the need for a separate data structure just for that
-    ## generating the tables shouldn't take super long: expensive computations should be done before, not in gt_x
+    do.call("print.xtable", tx_towrite)
 
+    ## copy original table to /tmp
+    cmd_copy_table <- sprintf("cp %s %s", filename_tex, paste0("/tmp/", tblname, ".tex"))
+    system(cmd_copy_table)
+
+    ## assign landscape: if not set, assume not
+    ## also set the texput ending: allows parallel rendering
+    texput_ending <- "\\end{document}"
     
-    ## get table, add filename to config
-    c_tbl <- chuck(l_tbls, tblname) %>%
-        c(list(file = paste0(chuck(c_dirs, "tbls"), tblname, ".tex")))
-
-    do.call("print.xtable", c_tbl)
-
-    ## assign landscape if set
-    if ("landscape" %in% names(c_tbl)) {
-        if (c_tbl$landscape) {
+    if ("landscape" %in% names(tx)) {
+        if (tx$landscape) {
             texput_file <- "texput_landscape.tex"
+            texput_ending <- paste0("\\end{landscape}", texput_ending, collapse = "\n")
+
         } else {
             texput_file <- "texput.tex"
         }
@@ -785,98 +805,56 @@ wtbl <- function(tblname, c_tbls = do.call("gc_tbls", c_tblargs)) {
         texput_file <- "texput.tex"
     }
 
+    texputted_filename <- paste0("/tmp/", tblname, "_texput.tex")
+
+    ## for now, copy texput files from dropbox. FIXME: put texput files into package dir
+    cmd_copy_texput <- sprintf("cp /home/johannes/Dropbox/technical_stuff_general/dotfiles/%s %s",
+                       texput_file, texputted_filename)
+    system(cmd_copy_texput)
     
+    ## add the table name to the texputted file
+    texput_input <- sprintf("\\input{%s}\n%s", paste0(tblname, ".tex"), texput_ending)
+    cmd_finalize_texput <- sprintf("echo \"%s\" >> %s", texput_input, texputted_filename)
     
-}
+    system(cmd_finalize_texput)
 
-
-
-dtbl <- function(dtx, crop = T, landscape = F, ...) {
-    if (as.character(match.call()[[1]]) %in% fstd){browser()}
-    1;1;1;1;1;1;1;1;1;1;1;1;1;1;1;1;1;1;1;1;1;1;1;1;1;1;1;
-    #' preview table as latex table as pdf
-
-    if ("xtable" %!in% class(dtx)) {
-        xtbl <- xtable(dtx)
-    } else {
-        xtbl <- dtx
-    }
-
-    tmp_dir <- "/tmp/"
-    tmp_file_tex <- "pvlt_input.tex"
+    ## actual compile command
+    cmd_compile <- paste0("cd /tmp && pdflatex ", texputted_filename)
+    system(cmd_compile)
     
-    tmp <- paste0(tmp_dir, tmp_file_tex)
-
-    ## pvlt_list <- as.list(substitute(list(...)))
-    ## pvlt_list2 <- c(pvlt_list, list(x = xtbl, file = tmp, include.rownames = F))
-    ## pvlt_list2 <- list(x = xtbl, file = tmp, include.rownames = F, sanitize.text.function = identity)
-    pvlt_list <- c(list(...), list(x = xtbl, file = tmp, include.rownames = F, sanitize.text.function = identity))
+    ## crop and copy cropped file back to table dir
+    crop_cmd <- sprintf("cd /tmp && pdfcrop %s %s",
+                        paste0("/tmp/", tblname, "_texput.pdf"), # the compiled pdf file in /tmp
+                        filename_pdf) # the target pdf in c_dirs$tbls
     
-    do.call("print.xtable", pvlt_list)
-
-    ## print.xtable(xtbl, file = tmp, include.rownames = F, ...)
-        
-    ## just use most barebones latex command for now
-    ##  from: https://tex.stackexchange.com/questions/302788/how-to-get-the-pdf-of-a-compiled-table-only
-    ## cmplcmd <- "pdflatex '\\documentclass{article}\\pagestyle{empty}\\begin{document}\\input{prvlt.tex}\\end{document}'"
-
-    ## if landscape option: use different base file with landscaped setting
-    texput_file <- "texput.tex"
-    if (landscape) {
-        texput_file <- "texput_landscape.tex"
-    }
-
-    ## print(texput_file)
-
-    cmplcmd <- sprintf("cp /home/johannes/Dropbox/technical_stuff_general/dotfiles/%s /tmp/texput.tex %s",
-                       texput_file, " && pdflatex texput.tex")
-
-    cmplcmd2 <- paste0("cd /tmp && ", cmplcmd)
-        
-    system(cmplcmd2)
-    
-    ## crop command pdfcrop needed to focus on table
-    if (crop) {
-        crop_cmd <- "cd /tmp && pdfcrop texput.pdf"
-    } else {
-        crop_cmd <- "cd /tmp && cp texput.pdf texput-crop.pdf"
-    }
     system(crop_cmd)
 
-    ## somewhat annoying check with lsof
-    open_check_cmd <- "lsof -w /tmp/texput-crop.pdf"
-    open_check_res <- system(open_check_cmd, intern = T)
-    
-    ## if an attribute is returned (rather than being null), file is not open
-    open <- is.null(attr(open_check_res, "status"))
-
-    if (!open) {
-        open_cmd <- "zathura /tmp/texput-crop.pdf & "
-        system(open_cmd)
-    }
-        
-    invisible(NULL)
+    return(invisible(NULL))
 
 }
-
-
-
-dxtbl <- function(xtbl_cfg, crop = T, landscape = F) {
+   
+#' generate a table: put it into l_tbls
+#' @export
+gtbl <- function(tblname, c_tbls = do.call("gc_tbls", c_tblargs)) {
     if (as.character(match.call()[[1]]) %in% fstd){browser()}
     1;1;1;1;1;1;1;1;1;1;1;1;1;1;1;1;1;1;1;1;1;1;1;1;1;1;1;
-    #' generic xtable preview command
 
-    xtable(xtbl_cfg$dt_fmtd, align = xtbl_cfg$align_cfg) %>%
-        dtbl(add.to.row = xtbl_cfg$add_to_row,
-             include.colnames = F,
-             hline.after = xtbl_cfg$hline_after,
-             crop = crop,
-             landscape = landscape)
+    c_tbl <- chuck(c_tbls, tblname)
+    ## yeet caption
+    c_tbl_nocap <- c_tbl %>% .[names(.) %!in% "caption"]
     
+    ## generate the list with the components that I need for xtable plotting
+    tx <- do.call(paste0("g", tblname), c_tbl_nocap)
+
+    ## re-add caption 
+    tx2 <- c(tx, list(caption = chuck(c_tbl, "caption")))
+    
+    l_tbls[[tblname]] <<- tx2
+
+    return(invisible(TRUE))    
+
+
 }
-
-
-
 
 
 
