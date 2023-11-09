@@ -63,15 +63,27 @@ similar idea as plotting framework:
 
 - gt_X: takes in data, generates table list of
   - dt_fmd: data.table with cells
-  - hline_after: positioning of hlines
-  - align_cfg: latex-table columm specification
-  - add_to_row: rows added afterwards (actually not sure this is a good usage)
+  - hline_after: positioning of hlines (some hlines are also provided by add_to_row)
+  - add_to_row: rows added afterwards: list of pos and command of add_to_row strings
+    used for column names (top), significance notes (bottom), variable group strings (inbetween)
+  - align_cfg: latex-table columm specification, can include dcolumn types
   - optional: landscape, default = F
     
 - gtbl: generates table-object list, places it in l_tbls
 - wtbl: parses l_tbls object to xtable, then writes to tex file and cropped pdf file
 - dtbl: displays cropped pdf file
 
+
+things to do: make table framework more coherent
+
+new functions:
+- gc_signote
+- gc_grpstrs
+- fmt_cell
+- fmt_pvlu
+
+
+  
 
 
 
