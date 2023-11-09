@@ -4,7 +4,7 @@
 #' @import data.table
 #' @importFrom mvbutils foodweb
 #' @importFrom xtable xtable print.xtable
-
+#' @importFrom texreg coeftostring
 .datatable.aware = T
 
 
@@ -857,5 +857,87 @@ gtbl <- function(tblname, c_tbls = do.call("gc_tbls", c_tblargs)) {
 
 }
 
+#' generates stars depending on p-value for latex
+#' @param p the p-value
+#' @return latex star string
+fmt_pvlu <- function(p) {
+    if (p >= 0.05) stars <- ""
+    if (p < 0.05) stars <- "^{*}"
+    if (p < 0.01) stars <- "^{**}"
+    if (p < 0.001) stars <- "^{***}"
+    stars
+}
+
+#' format a "cell" in a regression table
+#' processes numbers into strings (easier to work with text-wise)
+#' not sure if this great idea..
+#' some other package could handle (each element like coef, se, pvalue) separately -> more flexibility
+#' @param coef the main number
+#' @param se standard error
+#' @param pvalue the pvalue: for now used for stars
+#' @param wcptbl whether table has to work in word: then use math mode
+#' @param type how to format the cell
+#' @return formatted cell string
+#' @export 
+fmt_cell <- function(coef, se, pvalue, wcptbl, type) {
+
+    if (type == "coef-se-stars") {
+
+        cell_proc <- sprintf("%s \\; (%s)%s", # \\; 
+                             coeftostring(coef, lead.zero = F, digits = 2),
+                             format(round(se,2), nsmall = 2),
+                             fmt_pvlu(pvalue))
+    } else if (type == "coef-stars") {
+
+        cell_proc <- sprintf("%s%s",
+                             coeftostring(coef, lead.zero = F, digits = 2),
+                             fmt_pvlu(pvalue))
+    }
+
+    ## if mswcptbl = T, wrap cell contents in $ for math mode
+    if (wcptbl) cell_proc <- sprintf("$%s$", cell_proc)
+
+    return(cell_proc)
+
+}
 
 
+#' generate the multicolumn latex commands for variable groups
+#' uses the grouping label (rather than "raw" grouping id) to save a merge step
+#' to use in add_to_row
+#' @param dtx  the (ordered) data.frame, needs to have the grouping variable
+#' @param grp the variable to group by, should already be the grp_label
+#' @export
+#' @return data.table with columns grpstr (the group latex string),  pos (its position) grp_intern (grp vrbl)
+gc_grpstrs <- function(dtx, grp, nbr_cols) {
+    if (as.character(match.call()[[1]]) %in% fstd){browser()}
+   
+    copy(dtx)[, nbr := 1:.N] %>%
+        .[, grp_intern := get(grp)] %>% # set up separate variable to still have NSE even when variable changes
+        .[, .(pos = min(nbr)-1), grp_intern] %>%
+        .[, grpstr := sprintf("\\multicolumn{%s}{l}{\\textbf{%s}} \\\\ \n", nbr_cols, grp_intern)]
+        
+}
+
+
+#' generate note of pvalues/significance
+#' used in new table framework
+#' @param se_mention whether "standard errors in parantheses" is to be included
+#' @param ncol number of columns for multicolumn
+#' @export
+#' @return string of significance note
+gc_signote <- function(se_mention, ncol) {
+      
+    se_note <- "standard errors in parantheses."
+
+    ## generate significance note
+    sig_note_vlus <- paste0(fifelse(se_mention, se_note, ""),
+                            "\\textsuperscript{***}p $<$ 0.001;",
+                            "\\textsuperscript{**}p $<$ 0.01;",
+                            "\\textsuperscript{*}p $<$ 0.05.")
+
+    sig_note <- sprintf("\\hline \n \\multicolumn{%s}{l}{\\footnotesize{%s}}\n", ncol, sig_note_vlus)
+
+    return(sig_note)    
+
+}
