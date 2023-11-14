@@ -769,7 +769,7 @@ wtbl <- function(tblname, c_tbls = do.call("gc_tbls", c_tblargs)) {
     1;1;1;1;1;1;1;1;1;1;1;1;1;1;1;1;1;1;1;1;1;1;1;1;1;1;1;
  
     filename_tex <- paste0(chuck(c_dirs, "tbls"), tblname, ".tex")
-    filename_pdf <- paste0(chuck(c_dirs, "tbls"), tblname, ".pdf")
+    
 
     ## get table
     tx <- chuck(l_tbls, tblname)
@@ -785,6 +785,26 @@ wtbl <- function(tblname, c_tbls = do.call("gc_tbls", c_tblargs)) {
                        hline.after = tx$hline_after)
     
     do.call("print.xtable", tx_towrite)
+
+    wtbl_pdf(tblname)
+
+    return(invisible(NULL))
+
+}
+
+
+
+
+
+#' take a tex file, and generate cropped pdf file
+wtbl_pdf <- function(tblname) {
+
+    ## get the objects to work with 
+    ## have some duplication here (tx and filename_tex also in wtbl), but helps to keep function arguments lean
+    tx <- chuck(l_tbls, tblname)
+    filename_tex <- paste0(chuck(c_dirs, "tbls"), tblname, ".tex")
+    filename_pdf <- paste0(chuck(c_dirs, "tbls"), tblname, ".pdf")
+
 
     ## copy original table to /tmp
     cmd_copy_table <- sprintf("cp %s %s", filename_tex, paste0("/tmp/", tblname, ".tex"))
