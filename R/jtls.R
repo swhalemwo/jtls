@@ -786,22 +786,59 @@ wtbl <- function(tblname, c_tbls = do.call("gc_tbls", c_tblargs)) {
     
     do.call("print.xtable", tx_towrite)
 
-    wtbl_pdf(tblname)
+    landscape <- F
+
+    if ("landscape" %in% names(tx)) {
+        if (tx$landscape) {
+            landscape <- T
+        }
+    }
+
+    ## landscape <- fifelse("landscape" %in% names(tx),
+    ##                      fifelse(tx$landscape == T, T, F),
+    ##                      ## tx$landscape,
+    ##                      F)
+
+    wtbl_pdf(tblname, landscape)
 
     return(invisible(NULL))
 
 }
 
+#' write to tex file and render to pdf a gt object
+#' @param tblname the name of the table
+#' @export 
+wtbl2 <- function(tblname) {
+    if (as.character(match.call()[[1]]) %in% fstd){browser()}
+    1;1;1;1;1;1;1;1;1;1;1;1;1;1;1;1;1;1;1;1;1;1;1;1;1;1;1;
+
+    
+    tx <- chuck(l_tbls2, tblname)
+
+    filename_tex <- paste0(chuck(c_dirs, "tbls"), tblname, ".tex")
+
+    filecontent_tex <- as_latex(tx) %>% as.character
+
+    fileConn <- file(filename_tex)
+    writeLines(filecontent_tex, fileConn)
+    close(fileConn)
+
+    wtbl_pdf(tblname, F)
 
 
+
+}
 
 
 #' take a tex file, and generate cropped pdf file
-wtbl_pdf <- function(tblname) {
+#' @param tblname name of table (needs to be in gc_tbls, and thereby in l_tbls)
+#' @param landscape whether to use landscape format (rotated A4)
+#' @export 
+wtbl_pdf <- function(tblname, landscape) {
 
     ## get the objects to work with 
     ## have some duplication here (tx and filename_tex also in wtbl), but helps to keep function arguments lean
-    tx <- chuck(l_tbls, tblname)
+    
     filename_tex <- paste0(chuck(c_dirs, "tbls"), tblname, ".tex")
     filename_pdf <- paste0(chuck(c_dirs, "tbls"), tblname, ".pdf")
 
@@ -814,17 +851,14 @@ wtbl_pdf <- function(tblname) {
     ## also set the texput ending: allows parallel rendering
     texput_ending <- "\\end{document}"
     
-    if ("landscape" %in% names(tx)) {
-        if (tx$landscape) {
-            texput_file <- "texput_landscape.tex"
-            texput_ending <- paste0("\\end{landscape}", texput_ending, collapse = "\n")
+    if (landscape) {
+        texput_file <- "texput_landscape.tex"
+        texput_ending <- paste0("\\end{landscape}", texput_ending, collapse = "\n")
 
-        } else {
-            texput_file <- "texput.tex"
-        }
     } else {
         texput_file <- "texput.tex"
     }
+
 
     texputted_filename <- paste0("/tmp/", tblname, "_texput.tex")
 
