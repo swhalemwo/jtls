@@ -805,29 +805,28 @@ wtbl <- function(tblname, c_tbls = do.call("gc_tbls", c_tblargs)) {
 
 }
 
-#' write to tex file and render to pdf a gt object
-#' @param tblname the name of the table
-#' @export 
-wtbl2 <- function(tblname) {
-    if (as.character(match.call()[[1]]) %in% fstd){browser()}
-    1;1;1;1;1;1;1;1;1;1;1;1;1;1;1;1;1;1;1;1;1;1;1;1;1;1;1;
+## #' write to tex file and render to pdf a gt object
+## #' @param tblname the name of the table
+## wtbl2 <- function(tblname) {
+##     if (as.character(match.call()[[1]]) %in% fstd){browser()}
+##     1;1;1;1;1;1;1;1;1;1;1;1;1;1;1;1;1;1;1;1;1;1;1;1;1;1;1;
 
     
-    tx <- chuck(l_tbls2, tblname)
+##     tx <- chuck(l_tbls2, tblname)
 
-    filename_tex <- paste0(chuck(c_dirs, "tbls"), tblname, ".tex")
+##     filename_tex <- paste0(chuck(c_dirs, "tbls"), tblname, ".tex")
 
-    filecontent_tex <- as_latex(tx) %>% as.character
+##     filecontent_tex <- as_latex(tx) %>% as.character
 
-    fileConn <- file(filename_tex)
-    writeLines(filecontent_tex, fileConn)
-    close(fileConn)
+##     fileConn <- file(filename_tex)
+##     writeLines(filecontent_tex, fileConn)
+##     close(fileConn)
 
-    wtbl_pdf(tblname, F)
+##     wtbl_pdf(tblname, F)
 
 
 
-}
+## }
 
 
 #' take a tex file, and generate cropped pdf file
