@@ -1,5 +1,27 @@
 * collection of tools that J finds useful
 
+** Motivation
+
+When conducting statistical analyses with the final outcome being a report/paper/document, there are three primary outputs: tables, figures and numbers.In practice, the generation of these outcomes is a highly iterative process, and each output is subject to change. Typical examples of such changes are changes in the input data, variable additions, changes in processing of the data or changes in estimation. The task of these helper functions is to provide glue to minimize the friction between writing analytical code and including its output in a document.
+
+Experience of writing a report with a dozen figures figures and tables and around one hundred numbers.
+Several times our input data changed, which required a an incredible annoying
+
+biblatex/bibtex: similiar system exists for literature
+
+main features:
+- single point of truth for output: numbers, plot dimension, table layouts are
+- inspection: functionality to see how an element will look in the final latex report
+- avoid typos: no more manual copying of numbers from the terminal into the text
+
+
+Several warnings are in order:
+- These functions are highly idiosyncratically based on my experience, and in particular the software I use. Some components may have wider applicability, but others, in particular anything related to Emacs/ESS, are so tailored to my workflow that you may find them not helpful.
+- While these functions facilitate updating of numbers, figures and tables, their substantive meaning may change. Validation of these numbers, via manual inspection or automated testing, always has to be kept in mind. 
+
+
+
+
 tools included: 
 
 ** callgraph
@@ -82,15 +104,24 @@ new functions:
 - fmt_cell
 - fmt_pvlu
 
+** overall things/functions that need to be defined
+
+- gc_plts
+- gc_tbls
+- l_plts
+- l_tbls
+
+
 
   
 
 
 
 ** custom number reference framework
-gc_refplt: generate the in-text references to plots (from a globally available `gc_plts` function)
-gc_ynkplt: generate the yank-plots (spaces where the actual plots appear) 
-wd_nbrs: write the data.table of number in the actual org-file to org-macros
+- gc_refplt: generate the in-text references to plots (from a globally available `gc_plts` function)
+- gc_ynkplt: generate the yank-plots (spaces where the actual plots appear)
+- gc_reftbl: generate in-text references to tables
+- wd_nbrs: write the data.table of number in the actual org-file to org-macros
 
 
 
