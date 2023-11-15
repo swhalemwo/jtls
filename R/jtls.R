@@ -910,6 +910,26 @@ gtbl <- function(tblname, c_tbls = do.call("gc_tbls", c_tblargs)) {
 
 }
 
+#' generate the in-text references to tables
+#' to be used in gd_nbrs
+#' ynktbl not possible because "#+include:" commands are solved before macros are expanded
+#' @return data.table with nbr_name, nbr_fmt, grp columns
+#' @export
+gc_reftbl <- function() {
+    if (as.character(match.call()[[1]]) %in% fstd){browser()}
+    1;1;1;1;1;1;1;1;1;1;1;1;1;1;1;1;1;1;1;1;1;1;1;1;1;1;1;
+
+    tblnames <- do.call("gc_tbls", list()) %>% names()
+
+    data.table(tblname = tblnames) %>%
+        .[, macro := sprintf("\\ref{tbl:%s}", tblname)] %>%
+        .[, .(nbr_name = paste0("reftbl_", tblname),
+              nbr_fmt = macro,
+              grp = "reftbl")]
+
+}
+
+
 #' generates stars depending on p-value for latex
 #' @param p the p-value
 #' @return latex star string
