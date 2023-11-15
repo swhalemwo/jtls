@@ -278,7 +278,7 @@ gc_ynkplt <- function() {
         .[, macro :=
                 sprintf(paste0('(eval (concat "#+label: fig:%s\\n" "#+caption: %s\\n" ',
                                '"#+attr_latex: :width %scm\\n" "[[file:../figures/%s]]"))'),
-                        pltname, 
+                        paste0("fig:", pltname), 
                         caption,
                         width,
                         ## paste0("plt_", batch_version, "_", filename))] %>%
@@ -775,7 +775,8 @@ wtbl <- function(tblname, c_tbls = do.call("gc_tbls", c_tblargs)) {
     tx <- chuck(l_tbls, tblname)
  
     ## process the table result into xtable
-    tx_procd <- xtable(tx$dt_fmtd, caption = tx$caption, label = tblname, align = tx$align_cfg)
+    tx_procd <- xtable(tx$dt_fmtd, caption = tx$caption, align = tx$align_cfg,
+                       label = paste0("tbl:", tblname)) # adjust caption for pandoc compatibility
 
     ## create config that can be called by print.xtable
     tx_towrite <- list(x=tx_procd, include.rownames = F, include.colnames = F,
