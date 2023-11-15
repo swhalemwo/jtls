@@ -278,7 +278,7 @@ gc_ynkplt <- function() {
         .[, macro :=
                 sprintf(paste0('(eval (concat "#+label: fig:%s\\n" "#+caption: %s\\n" ',
                                '"#+attr_latex: :width %scm\\n" "[[file:../figures/%s]]"))'),
-                        paste0("fig:", pltname), 
+                        pltname, 
                         caption,
                         width,
                         ## paste0("plt_", batch_version, "_", filename))] %>%
