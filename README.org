@@ -89,10 +89,12 @@ similar idea as plotting framework:
   - add_to_row: rows added afterwards: list of pos and command of add_to_row strings
     used for column names (top), significance notes (bottom), variable group strings (inbetween)
   - align_cfg: latex-table columm specification, can include dcolumn types
-  - optional: landscape, default = F
+  - number_cols: for wcpT, these the values in columns get wrapped in dollar sign to ensure math mode, which is somehow required for tables to work when exporting to word
+  - optional: landscape, default = F. whether to flip the page  horizontal, to be used for wide tables
     
 - gtbl: generates table-object list, places it in l_tbls
 - wtbl: parses l_tbls object to xtable, then writes to tex file and cropped pdf file
+  also 
 - dtbl: displays cropped pdf file
 
 
@@ -103,6 +105,21 @@ new functions:
 - gc_grpstrs
 - fmt_cell
 - fmt_pvlu
+
+** word compability
+More frequently than I would like to I have to produce word documents so that people can leave comments in them. Unfortunately, working with word in any kind of pipeline is fraught with difficulties, such as
+- cross-references
+- tables formatting gets messed up
+- pdfs are not rendering
+
+To deal with these issues, jtls includes a number of functionality to deal with word documents.
+
+For preparation, tables and figures are generated also in word-compatible format; for figures this means as .pngs, for tables this means no D-columns, and columns with numbers are wrapped in dollar signs to ensure math mode. 
+
+To generate a word document, an pre-export hook replaces the normal tables with word-compatible tables and the pdfs with pngs, then exports this file to `.tex`. `Pandoc` is then used to convert the `.tex` file to `.html`, which is then converted to `.docx`. I found that this process is able to produce a .docx with cross-references, figures and tables, which is mostly readable (imperfections are incorrect formatting of some in-text references, incorrect placement of the bibliography, and tables not looking great as column sizes, column alignments and consequently row heights are disregarded by word).
+
+
+
 
 ** overall things/functions that need to be defined
 
