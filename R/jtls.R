@@ -767,13 +767,13 @@ dtblF <- function(tblname) {
 wtbl <- function(tblname, c_tbls = do.call("gc_tbls", c_tblargs)) {
     if (as.character(match.call()[[1]]) %in% fstd){browser()}
     1;1;1;1;1;1;1;1;1;1;1;1;1;1;1;1;1;1;1;1;1;1;1;1;1;1;1;
- 
-    filename_tex <- paste0(chuck(c_dirs, "tbls"), tblname, ".tex")
     
-
+    filename_tex <- paste0(chuck(c_dirs, "tbls"), tblname, "_wcpF.tex")
+    
+    ## normal process
     ## get table
     tx <- chuck(l_tbls, tblname)
- 
+    
     ## process the table result into xtable
     tx_procd <- xtable(tx$dt_fmtd, caption = tx$caption, align = tx$align_cfg,
                        label = paste0("tbl:", tblname)) # adjust caption for pandoc compatibility
@@ -787,6 +787,29 @@ wtbl <- function(tblname, c_tbls = do.call("gc_tbls", c_tblargs)) {
     
     do.call("print.xtable", tx_towrite)
 
+    ## word-compatible export
+    ## make cells word-compatible (try latexTranslate), maybe needs more explicity wrapping in math-mode ($)
+    dt_fmtd_wcpT <- tfmv(tx$dt_fmtd, vars = names(tx$dt_fmtd)[chuck(tx, "number_cols")],
+                         FUN = \(x) sprintf("$%s$", x))
+
+    ## update align_cfg (no Dcolumns)
+    align_cfg_wcpT <- map(tx$align_cfg, ~fifelse(substring(.x, 1, 1) == "D", "l", .x))
+
+    tx_procd_wcpT <- xtable(dt_fmtd_wcpT, caption = tx$caption, align = align_cfg_wcpT,
+                            label = paste0("tbl:", tblname))
+
+    filename_tex_wcpT <- paste0(chuck(c_dirs, "tbls"), tblname, "_wcpT.tex")
+
+    tx_towrite_wcpT <- list(x=tx_procd_wcpT, include.rownames = F, include.colnames = F,
+                       file = filename_tex_wcpT,
+                       sanitize.text.function = identity,
+                       add.to.row = tx$add_to_row,
+                       hline.after = tx$hline_after)
+
+    do.call("print.xtable", tx_towrite_wcpT)
+
+
+
     landscape <- F
 
     if ("landscape" %in% names(tx)) {
@@ -795,10 +818,7 @@ wtbl <- function(tblname, c_tbls = do.call("gc_tbls", c_tblargs)) {
         }
     }
 
-    ## landscape <- fifelse("landscape" %in% names(tx),
-    ##                      fifelse(tx$landscape == T, T, F),
-    ##                      ## tx$landscape,
-    ##                      F)
+
 
     wtbl_pdf(tblname, landscape)
 
