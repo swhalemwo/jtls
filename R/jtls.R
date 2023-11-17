@@ -1035,3 +1035,23 @@ gc_signote <- function(se_mention, ncol) {
     return(sig_note)    
 
 }
+
+
+
+#' generates the column labels/headers with multicolumn
+#' for now no support for spanners, but I guess they can be separately generated
+#' @param colnames vector of the columns in the order they appear in the table
+#' @param collbs named vector with colname as key, and column label as value
+#' @return formatted string, to be added to add_to_row
+#' @export
+gc_colnames <- function(col_names, col_lbls) {
+
+    c_colnames_fmtd <- map(col_names,
+                           ~sprintf("\\multicolumn{1}{l}{%s}", chuck(col_lbls, .x))) %>%
+        paste0(collapse = " & ")
+
+    c_colnames <- paste0("\\hline \n ", c_colnames_fmtd, "\\\\ \n") ## add hline and linebreaks
+
+    return(c_colnames)
+    
+}
