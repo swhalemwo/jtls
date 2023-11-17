@@ -2,6 +2,7 @@
 #' @import magrittr
 #' @import graph
 #' @import data.table
+#' @importFrom broom tidy glance
 #' @importFrom mvbutils foodweb
 #' @importFrom xtable xtable print.xtable
 #' @importFrom texreg coeftostring
@@ -819,8 +820,8 @@ wtbl <- function(tblname, c_tbls = do.call("gc_tbls", c_tblargs)) {
     }
 
 
-
-    wtbl_pdf(tblname, landscape)
+    ## write-to-pdf the pdf version (i.e.the wcpF version): this is what looks best
+    wtbl_pdf(paste0(tblname, "_wcpF"), landscape)
 
     return(invisible(NULL))
 
@@ -1048,11 +1049,120 @@ gc_signote <- function(se_mention, ncol) {
 gc_colnames <- function(col_names, col_lbls) {
 
     c_colnames_fmtd <- map(col_names,
-                           ~sprintf("\\multicolumn{1}{l}{%s}", chuck(col_lbls, .x))) %>%
+                           ~sprintf("\\multicolumn{1}{l}{%s}", latexTranslate(chuck(col_lbls, .x)))) %>%
         paste0(collapse = " & ")
 
     c_colnames <- paste0("\\hline \n ", c_colnames_fmtd, "\\\\ \n") ## add hline and linebreaks
 
     return(c_colnames)
     
+}
+
+#' tidy coxph regression model into dt
+#' needs: vrbl, mdl_name, coef, se, pvalue
+#' @param rx a coxph model
+#' @param mdl_name model name
+#' @export
+#' @return list of dt_coef and dt_gof
+gd_reg_coxph <- function(rx, mdl_name) {
+    if (as.character(match.call()[[1]]) %in% fstd){browser()}
+    1;1;1;1;1;1;1;1;1;1;1;1;1;1;1;1;1;1;1;1;1;1;1;1;1;1;1;
+
+    
+    ## maybe using term is indeed better than variable, better way of dealing with categorical variables
+    dt_coef <- broom::tidy(rx) %>% adt() %>%
+        .[, .(term, coef = estimate, se = std.error, pvalue= p.value, mdl_name = mdl_name)]
+        
+    dt_gof <- broom::glance(rx) %>% adt %>% # melt(measure.vars = names(.), variable.name = "gof_term") %>%
+        .[, .(nobs, nevent, logLik, AIC, BIC, mdl_name = mdl_name)]
+
+    ## apply(dt_gof, 2, typeof)
+    ## sapply(dt_gof, typeof)
+
+    return(list(
+        dt_coef = dt_coef,
+        dt_gof = dt_gof))
+
+
+}
+
+#' generate a custom_table object from dt_coef, dt_gof and some label/cfg dts from vvs
+#' @param dt_coef dt with vrbl, mdl_name, coef, se, pvalue
+#' @param dt_gof wide dt with GOF stats and mdl_name
+#' @param dt_vrblinfo dt with info on variables: vrbl, vrbl_lbl, vrblgrp, vrblgrp_lbl
+#' @param dt_ctgterm_lbls dt with info on terms of categorical variables: vrbl, term, term_lbl
+#' @param dt_gof_cfg dt with info on GOF: gof_name, digits (for founding), gof_lbl
+#' @param mdl_lbls vector of model labels (keys are model names)
+#' @return custom table framework
+#' @export
+gt_reg <- function(dt_coef, dt_gof, dt_vrblinfo, dt_ctgterm_lbls, dt_gof_cfg, mdl_lbls) {
+    if (as.character(match.call()[[1]]) %in% fstd){browser()}
+    1;1;1;1;1;1;1;1;1;1;1;1;1;1;1;1;1;1;1;1;1;1;1;1;1;1;1;
+        
+    ## FIXME: add logic for when there are no categorical variables
+    ## FIXME: add logic for when no groups
+
+    ## -------- SECTION COEF ----------
+
+    ## first combine continuous and categorical variables
+    ## add variable group to categorical variables
+    ## use update join for categorical terms, then rbind with variable info (continuous variables)
+    dt_termlbls <- copy(dt_ctgterm_lbls)[dt_vrblinfo,
+                                               `:=`("vrblgrp" = i.vrblgrp, "vrblgrp_lbl" = i.vrblgrp_lbl),
+                                               on = "vrbl"] %>% 
+        rbind(dt_vrblinfo[, .(term = vrbl, vrbl, term_lbl = vrbl_lbl, vrblgrp, vrblgrp_lbl)])
+        
+    ## merge with dt_coefs, format cells, cast into wide, order
+    dt_coef_wide_prep <- dt_termlbls[dt_coef, on = "term"] %>%
+        .[, cell_fmt := fmt_cell(coef, se, pvalue, type = "coef-se-stars"), 1:nrow(.)] %>%
+        dcast(term_lbl + term + vrblgrp + vrblgrp_lbl ~ mdl_name, value.var = "cell_fmt") %>% 
+        .[, term := factor(term, levels = levels(dt_termlbls$term))] %>% # re-add term factor order
+        .[order(vrblgrp, term)]
+        
+    ## select columns
+    dt_coef_wide <- dt_coef_wide_prep[, c("term_lbl", funique(dt_coef$mdl_name)), with = F] %>%
+        cbind(grp_filler = "", .) %>%
+        .[, term_lbl := latexTranslate(term_lbl)]
+
+    ## ------- SECTION DECORATIONS -------
+
+
+    dt_grpstrs <- gc_grpstrs(dt_coef_wide_prep, grp = "vrblgrp_lbl", len(mdl_lbls) + 2) # generate group strings
+    ## make them over all the columns (grp_filler, vrbl, number of models)
+
+    signote <- gc_signote(se_mention = T,ncol = 4) # generate signote
+
+    c_colnames <- gc_colnames(names(dt_coef_wide), col_lbls = # generate column names
+                                                 c(list(grp_filler = "", term_lbl = "Variable"), mdl_lbls))
+    
+    ## ------ SECTION GOF -----------
+        
+    ## melt gofs, format them 
+    dt_gof_long <- suppressWarnings(melt(dt_gof, id.vars = "mdl_name",
+                          variable.name = "gof_name", value.name = "gof_value")) %>%
+        dt_gof_cfg[., on = "gof_name"] %>%
+        .[, gof_fmt := format(gof_value, digits = max(digits,1), nsmall = digits), .(gof_name, mdl_name)]
+
+    ## cast gof into wide, order doesn't matter for rbind
+    dt_gof_wide <- dcast(dt_gof_long, gof_name + gof_lbl ~ mdl_name, value.var = "gof_fmt") %>%
+        .[, `:=`(term_lbl = gof_lbl, gof_name = NULL, gof_lbl = NULL, grp_filler = "")]
+
+
+    ## -------- SECTION COMBINE EVERYTHING -------
+
+    ## combine coefs with gof
+    dt_viz <- rbind(dt_coef_wide, dt_gof_wide)
+
+                                                  
+    c_atr <- list(
+        pos = c(list(-1, nrow(dt_viz)), dt_grpstrs$pos),
+        command = c(c_colnames, signote, dt_grpstrs$grpstr))
+
+    list(dt_fmtd = dt_viz,
+         align_cfg = c("l", "p{0mm}", "l", rep("D{)}{)}{8)3}",len(mdl_lbls))), 
+         hline_after = c(-1, nrow(dt_coef_wide)), # lines at top and before gof block
+         add_to_row = c_atr,
+         number_cols = c(rep(F,2), rep(T,len(mdl_lbls))))
+
+
 }

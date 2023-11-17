@@ -101,10 +101,11 @@ similar idea as plotting framework:
 things to do: make table framework more coherent
 
 new functions:
-- gc_signote
-- gc_grpstrs
-- fmt_cell
-- fmt_pvlu
+- gc_signote: generate significance note
+- gc_grpstrs: generates group strings of variable blocks: to be added to add_to_row
+- gc_colnames: generates column names, uses multicolumn{1} to not get fucked with by dcolumn
+- fmt_cell: format cell (coef, se, pvalue), has some different options
+- fmt_pvlu: generate stars
 
 ** word compability
 More frequently than I would like to I have to produce word documents so that people can leave comments in them. Unfortunately, working with word in any kind of pipeline is fraught with difficulties, such as
