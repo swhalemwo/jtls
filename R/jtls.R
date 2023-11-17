@@ -973,7 +973,8 @@ fmt_pvlu <- function(p) {
 #' @param type how to format the cell
 #' @return formatted cell string
 #' @export 
-fmt_cell <- function(coef, se, pvalue, wcptbl, type) {
+fmt_cell <- function(coef, se, pvalue, type) {
+    ## wcptbl
 
     if (type == "coef-se-stars") {
 
@@ -989,7 +990,7 @@ fmt_cell <- function(coef, se, pvalue, wcptbl, type) {
     }
 
     ## if mswcptbl = T, wrap cell contents in $ for math mode
-    if (wcptbl) cell_proc <- sprintf("$%s$", cell_proc)
+    ## if (wcptbl) cell_proc <- sprintf("$%s$", cell_proc)
 
     return(cell_proc)
 
