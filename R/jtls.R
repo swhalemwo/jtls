@@ -1130,7 +1130,7 @@ gt_reg <- function(dt_coef, dt_gof, dt_vrblinfo, dt_ctgterm_lbls, dt_gof_cfg, md
     dt_grpstrs <- gc_grpstrs(dt_coef_wide_prep, grp = "vrblgrp_lbl", len(mdl_lbls) + 2) # generate group strings
     ## make them over all the columns (grp_filler, vrbl, number of models)
 
-    signote <- gc_signote(se_mention = T,ncol = 4) # generate signote
+    signote <- gc_signote(se_mention = T,ncol = len(mdl_lbls) + 2) # generate signote
 
     c_colnames <- gc_colnames(names(dt_coef_wide), col_lbls = # generate column names
                                                  c(list(grp_filler = "", term_lbl = "Variable"), mdl_lbls))
