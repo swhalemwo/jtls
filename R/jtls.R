@@ -827,6 +827,19 @@ wtbl <- function(tblname, c_tbls = do.call("gc_tbls", c_tblargs)) {
 
 }
 
+#' generate and display table (requires writing to pdf)
+#' @param tblname the table to display
+#' @return displays table as side effect, if not open already
+#' @export
+gdtbl <- function(tblname) {
+
+    gtbl(tblname)
+    wtbl(tblname)
+    dtblF(paste0(tblname, "_wcpF"))
+}
+
+
+
 ## #' write to tex file and render to pdf a gt object
 ## #' @param tblname the name of the table
 ## wtbl2 <- function(tblname) {
