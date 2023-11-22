@@ -1054,6 +1054,7 @@ gc_signote <- function(se_mention, ncol) {
 
 
 #' generates the column labels/headers with multicolumn
+#'
 #' for now no support for spanners, but I guess they can be separately generated
 #' @param colnames vector of the columns in the order they appear in the table
 #' @param collbs named vector with colname as key, and column label as value
@@ -1099,7 +1100,8 @@ gd_reg_coxph <- function(rx, mdl_name) {
 
 }
 
-#' generate a custom_table object from dt_coef, dt_gof and some label/cfg dts from vvs
+#' generate a custom_table object from dt_coef, dt_gof and some label/cfg dts from vvs:
+#' dt_vrblinfo, dt_ctgterm_lbls an dt_gof_cfg are generally provided by gc_vvs() in main project
 #' @param dt_coef dt with vrbl, mdl_name, coef, se, pvalue
 #' @param dt_gof wide dt with GOF stats and mdl_name
 #' @param dt_vrblinfo dt with info on variables: vrbl, vrbl_lbl, vrblgrp, vrblgrp_lbl
