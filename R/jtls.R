@@ -1100,8 +1100,10 @@ gd_reg_coxph <- function(rx, mdl_name) {
 
 }
 
-#' generate a custom_table object from dt_coef, dt_gof and some label/cfg dts from vvs:
-#' dt_vrblinfo, dt_ctgterm_lbls an dt_gof_cfg are generally provided by gc_vvs() in main project
+#' generate a custom_table object
+#'
+#' dt_coef: can come from whereever, 
+#' dt_vrblinfo, dt_ctgterm_lbls and dt_gof_cfg are generally provided by gc_vvs() in main project
 #' @param dt_coef dt with vrbl, mdl_name, coef, se, pvalue
 #' @param dt_gof wide dt with GOF stats and mdl_name
 #' @param dt_vrblinfo dt with info on variables: vrbl, vrbl_lbl, vrblgrp, vrblgrp_lbl
