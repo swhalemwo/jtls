@@ -493,8 +493,8 @@ gl_clgr_objs <- function() {
         
 
     } else if (len(l_objs_gnrtdby) == 0) {
-        dt_gnrtdby <- data.table(caller = character(), called = character(), linktype = character(),
-                                 display_name = character())
+        dt_gnrtdby <- data.table(caller = character(), called = character(), linktype = character())
+                                 ## display_name = character())
     }
         
 
@@ -632,7 +632,9 @@ parse_clgrph_todot <- function(l_gobjs) {
 #' generate, write and display the callgraph
 #'
 #' queries the global environent for the callgraph relations
+#' 
 #' opens newly constructed callgraph as side effect
+#' 
 #' uses/requires c_dirs and dpltF
 #' @export
 gwd_clgrph <- function() {

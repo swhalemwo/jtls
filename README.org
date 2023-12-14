@@ -34,6 +34,13 @@ tools included:
 - gl_funlinks
 - gwd_clgrph: generate, write, display callgraph
 
+todos:
+- case of len(l_objs_gnrtdby) > 0 == F in gl_clgrph_objs is buggy
+  - empty dt doesn't match with full dt (columns different)
+  - true condition (global objects present) produces objects that are needed overall, not just in TRUE case
+  - some other error when there are global objects, idk
+
+
 
 ** custom plotting framework
 
