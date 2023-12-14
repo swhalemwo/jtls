@@ -1058,15 +1058,22 @@ gc_signote <- function(se_mention, ncol) {
 #' for now no support for spanners, but I guess they can be separately generated
 #' @param colnames vector of the columns in the order they appear in the table
 #' @param collbs named vector with colname as key, and column label as value
+#' @param hline_above flag whether to put hlines before the column names, default TRUE. can be switched off when using a multi-line header (spanner), in that case the hlines have to be provided by that or manually otherwise.
 #' @return formatted string, to be added to add_to_row
 #' @export
-gc_colnames <- function(col_names, col_lbls) {
+gc_colnames <- function(col_names, col_lbls, hline_above = T) {
 
     c_colnames_fmtd <- map(col_names,
                            ~sprintf("\\multicolumn{1}{l}{%s}", latexTranslate(chuck(col_lbls, .x)))) %>%
         paste0(collapse = " & ")
 
-    c_colnames <- paste0("\\hline \n ", c_colnames_fmtd, "\\\\ \n") ## add hline and linebreaks
+    if (hline_above) {
+
+        c_colnames <- paste0("\\hline \n ", c_colnames_fmtd, "\\\\ \n") ## add hline and linebreaks
+    } else {
+        c_colnames <- paste0(c_colnames_fmtd, "\\\\ \n")
+    }
+    
 
     return(c_colnames)
     
