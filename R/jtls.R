@@ -9,6 +9,20 @@
 .datatable.aware = T
 
 
+#' generate list of directory for a project
+#'
+#' @param dir_proj the project directory, use full path just to be sure
+#' @export
+gc_dirs <- function(dir_proj) {
+    list(
+        proj = dir_proj,
+        figs = paste0(dir_proj, "figures/"),
+        tbls = paste0(dir_proj, "tables/"),
+        data = paste0(dir_proj, "data/"),
+        code = paste0(dir_proj, "scripts/"),
+        misc = paste0(dir_proj, "misc/")
+    )
+}
 
 
 #' exports a dataframe to a spreadsheet for inspection
