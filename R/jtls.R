@@ -984,6 +984,7 @@ gc_reftbl <- function() {
 #' generates stars depending on p-value for latex
 #' @param p the p-value
 #' @return latex star string
+#' @export
 fmt_pvlu <- function(p) {
     if (p >= 0.05) stars <- ""
     if (p < 0.05) stars <- "^{*}"
@@ -1205,4 +1206,45 @@ gt_reg <- function(dt_coef, dt_gof, dt_vrblinfo, dt_ctgterm_lbls, dt_gof_cfg, md
          number_cols = c(rep(F,2), rep(T,len(mdl_lbls))))
 
 
+}
+
+
+#' generate information on within and between variation, similar to Stata's `xtsum` command
+#'
+#' 
+#' @param data the data 
+#' @param varname variable to calculate the variation for (don't quote it)
+#' @param unit variable indicating groups (don't quote it)
+#' @export 
+xtsum <- function(data, varname, unit) {
+    if (as.character(match.call()[[1]]) %in% fstd){browser()}
+    
+    ## Xtsum
+    varname <- enquo(varname)
+    loc.unit <- enquo(unit)
+    ores <- data %>% summarise(Mean=mean(!! varname, na.rm=TRUE), sd=sd(!! varname, na.rm=TRUE), min = min(!! varname, na.rm=TRUE), max=max(!! varname, na.rm=TRUE), N=sum(as.numeric((!is.na(!! varname)))))
+    bmeans <- data %>% group_by(!! loc.unit) %>% summarise(meanx=mean(!! varname, na.rm=T), t.count=sum(as.numeric(!is.na(!! varname)))) 
+    bres <- bmeans %>% ungroup() %>% summarise(sd = sd(meanx, na.rm=TRUE), min = min(meanx, na.rm=TRUE), max=max(meanx, na.rm=TRUE), n=sum(as.numeric(!is.na(t.count))), `T-bar`=mean(t.count, na.rm=TRUE))
+    wdat <- data %>% group_by(!! loc.unit) %>% mutate(W.x = scale(!! varname, center=TRUE, scale=FALSE))
+    wres <- wdat %>% ungroup() %>% summarise(sd=sd(W.x, na.rm=TRUE), min=min(W.x, na.rm=TRUE), max=max(W.x, na.rm=TRUE))
+    ## Loop to adjust the scales within group outputs against the overall mean
+    for(i in 2:3) {
+        wres[i] <- sum(ores[1], wres[i])
+    }
+
+    ## Table Output
+    ## Variable <- matrix(c(varname, "", ""), ncol=1)
+    ## Variable <- matrix(c("varname", "", ""), ncol=1)
+    Variable <- matrix(c(quo_name(varname), "", ""), ncol=1)
+    Comparison <- matrix(c("Overall", "Between", "Within"), ncol=1)
+    Mean <- matrix(c(ores[1], "", ""), ncol=1)
+    Observations <- matrix(c(paste0("N = ", ores[5]), paste0("n = ", bres[4]), paste0("T-bar = ", round(bres[5], 4))), ncol=1)
+    Tab <- rbind(ores[2:4], bres[1:3], wres[1:3])
+    Tab <- cbind(Tab, Observations)
+    Tab <- cbind(Mean, Tab)
+    Tab <- cbind(Comparison, Tab)
+    Tab <- cbind(Variable, Tab)
+
+    ## Output
+    return(Tab)
 }
