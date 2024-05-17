@@ -903,7 +903,7 @@ wtbl_pdf <- function(tblname, landscape) {
     
     if (landscape) {
         texput_file <- "texput_landscape.tex"
-        texput_ending <- paste0("\\end{landscape}", texput_ending, collapse = "\n")
+        texput_ending <- paste0("\\end{landscape}", "\n", texput_ending, collapse = "\n")
 
     } else {
         texput_file <- "texput.tex"
