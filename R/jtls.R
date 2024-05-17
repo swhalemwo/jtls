@@ -369,7 +369,7 @@ gl_funlinks <- function() {
 
     funcs_to_yeet <- .c(atb, adt,len, print.data.table, print_data_table, adf, achr, anum, gw_fargs, gl_funlinks,
                         gl_funmat, gg_clgrph, gc_dirs, gc_plts, gd_nbrs, gl_clgr_objs, gc_clgrphattrs,
-                        gc_tbls)
+                        gc_tbls, gc_vvs)
 
     dt_funmat_edges_prep <- fw$funmat[rownames(fw$funmat) %!in% funcs_to_yeet, # yeet unneeded rows
                                       colnames(fw$funmat) %!in% funcs_to_yeet] %>%  # yeet unneeded columns
@@ -1210,7 +1210,6 @@ gt_reg <- function(dt_coef, dt_gof, dt_vrblinfo, dt_ctgterm_lbls, dt_gof_cfg, md
 
 
 #' generate information on within and between variation, similar to Stata's `xtsum` command
-#'
 #' 
 #' @param data the data 
 #' @param varname variable to calculate the variation for (don't quote it)
