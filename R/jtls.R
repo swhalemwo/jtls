@@ -1100,19 +1100,37 @@ gc_colnames <- function(col_names, col_lbls, hline_above = T) {
 #' needs: vrbl, mdl_name, coef, se, pvalue
 #' @param rx a coxph model
 #' @param mdl_name model name
+#' @param unit_name the name of the unit contributing the times at risk, e.g. individual/organization
 #' @export
 #' @return list of dt_coef and dt_gof
-gd_reg_coxph <- function(rx, mdl_name) {
+gd_reg_coxph <- function(rx, mdl_name, unit_name = NULL) {
     if (as.character(match.call()[[1]]) %in% fstd){browser()}
     1;1;1;1;1;1;1;1;1;1;1;1;1;1;1;1;1;1;1;1;1;1;1;1;1;1;1;
-
+    ## browser()
     
+    l_gof_vrbls <- c("nobs", "nevent", "logLik", "AIC", "BIC", "mdl_name")
+
     ## maybe using term is indeed better than variable, better way of dealing with categorical variables
     dt_coef <- broom::tidy(rx) %>% adt() %>%
         .[, .(term, coef = estimate, se = std.error, pvalue= p.value, mdl_name = mdl_name)]
-        
-    dt_gof <- broom::glance(rx) %>% adt %>% # melt(measure.vars = names(.), variable.name = "gof_term") %>%
-        .[, .(nobs, nevent, logLik, AIC, BIC, mdl_name = mdl_name)]
+    
+    dt_gof_prep <- broom::glance(rx) %>% adt %>%
+        .[, mdl_name := mdl_name]
+
+    ## parse model name to get number of units (e.g. individuals/organizations)
+    if (!is.null(unit_name)) {
+        dt_mdl_str <- as.list(rx$call)$data
+        dt_mdl <- eval(parse(text = deparse(dt_mdl_str)))
+        ## print(dt_mdl)
+        nunits <- dt_mdl[, uniqueN(get(unit_name))]
+
+        dt_gof_prep$nunits <- nunits ## add nunits to dt_gof_prep
+        l_gof_vrbls <- c("nunits", l_gof_vrbls) ## add nunits call to l_gof_vrbls
+
+    }
+    
+    dt_gof <- dt_gof_prep[, .SD, .SDcols = l_gof_vrbls] # get the gof values
+    
 
     ## apply(dt_gof, 2, typeof)
     ## sapply(dt_gof, typeof)
