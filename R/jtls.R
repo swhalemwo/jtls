@@ -1234,7 +1234,7 @@ gt_reg <- function(dt_coef, dt_gof, dt_vrblinfo, dt_ctgterm_lbls, dt_gof_cfg, md
 #' @param unit variable indicating groups (don't quote it)
 #' @export 
 xtsum <- function(data, varname, unit) {
-    if (as.character(match.call()[[1]]) %in% fstd){browser()}
+    ## if (as.character(match.call()[[1]]) %in% fstd){browser()}
     
     ## Xtsum
     varname <- enquo(varname)
