@@ -1098,7 +1098,7 @@ gc_colnames <- function(col_names, col_lbls, hline_above = T) {
 
 #' tidy coxph regression model into dt
 #' needs: vrbl, mdl_name, coef, se, pvalue
-#' @param rx a coxph model
+#' @param rx a coxph model, if unit_name is used the data should come from a data.table, and be accessible in the global environment
 #' @param mdl_name model name
 #' @param unit_name the name of the unit contributing the times at risk, e.g. individual/organization
 #' @export
@@ -1119,8 +1119,14 @@ gd_reg_coxph <- function(rx, mdl_name, unit_name = NULL) {
 
     ## parse model name to get number of units (e.g. individuals/organizations)
     if (!is.null(unit_name)) {
+
         dt_mdl_str <- as.list(rx$call)$data
         dt_mdl <- eval(parse(text = deparse(dt_mdl_str)))
+
+        if ("data.table" %!in% class(dt_mdl)) {
+            stop("coxph model data source is not a data.table")
+        }
+        
         ## print(dt_mdl)
         nunits <- dt_mdl[, uniqueN(get(unit_name))]
 
