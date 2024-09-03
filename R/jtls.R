@@ -490,7 +490,8 @@ gl_clgr_objs <- function() {
         ## these are not links, these are the subgraphs -> don't bind them with the other links
         dt_parchild_rels <- map(l_objs_gnrtdby, ~rbindlist(rec_attr_query(.x))) %>% list_rbind %>% funique %>%
             .[, linktype := "par-child"]
-        
+
+        ## rec_attr_query(l_objs_gnrtdby[[1]])
 
     } else if (len(l_objs_gnrtdby) == 0) {
         dt_gnrtdby <- data.table(caller = character(), called = character(), linktype = character())
@@ -1108,7 +1109,7 @@ gd_reg_coxph <- function(rx, mdl_name, unit_name = NULL) {
     1;1;1;1;1;1;1;1;1;1;1;1;1;1;1;1;1;1;1;1;1;1;1;1;1;1;1;
     ## browser()
     
-    l_gof_vrbls <- c("nobs", "nevent", "logLik", "AIC", "BIC", "mdl_name")
+    l_gof_vrbls <- c("nobs", "nevent", "logLik", "AIC", "BIC", "mdl_name", "df")
 
     ## maybe using term is indeed better than variable, better way of dealing with categorical variables
     dt_coef <- broom::tidy(rx) %>% adt() %>%
@@ -1116,6 +1117,8 @@ gd_reg_coxph <- function(rx, mdl_name, unit_name = NULL) {
     
     dt_gof_prep <- broom::glance(rx) %>% adt %>%
         .[, mdl_name := mdl_name]
+
+    dt_gof_prep$df <- summary(rx)$waldtest[[2]]
 
     ## parse model name to get number of units (e.g. individuals/organizations)
     if (!is.null(unit_name)) {
