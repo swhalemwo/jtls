@@ -914,7 +914,7 @@ wtbl_pdf <- function(tblname, landscape) {
     texputted_filename <- paste0("/tmp/", tblname, "_texput.tex")
 
     ## for now, copy texput files from dropbox. FIXME: put texput files into package dir
-    cmd_copy_texput <- sprintf("cp /home/johannes/Dropbox/technical_stuff_general/dotfiles/%s %s",
+    cmd_copy_texput <- sprintf("cp /home/johannes/Dropbox/phd/jtls/inst/%s %s",
                        texput_file, texputted_filename)
     system(cmd_copy_texput)
     
