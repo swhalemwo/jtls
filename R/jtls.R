@@ -815,8 +815,15 @@ wtbl <- function(tblname, c_tbls = do.call("gc_tbls", c_tblargs)) {
 
     ## word-compatible export
     ## make cells word-compatible (try latexTranslate), maybe needs more explicity wrapping in math-mode ($)
-    dt_fmtd_wcpT <- tfmv(tx$dt_fmtd, vars = names(tx$dt_fmtd)[chuck(tx, "number_cols")],
-                         FUN = \(x) sprintf("$%s$", x))
+    ## dt_fmtd_wcpT <- tfmv(tx$dt_fmtd, vars = names(tx$dt_fmtd)[chuck(tx, "number_cols")],
+    ##                      FUN = \(x) sprintf("$%s$", x))
+
+    c_number_cols <- names(tx$dt_fmtd)[chuck(tx, "number_cols")]
+
+    dt_fmtd_wcpT <- tx$dt_fmtd %>% copy %>%
+        .[, (c_number_cols) := map(.SD, ~sprintf("$%s$", .x)), .SDcols = c_number_cols]
+
+    
 
     ## update align_cfg (no Dcolumns)
     align_cfg_wcpT <- map(tx$align_cfg, ~fifelse(substring(.x, 1, 1) == "D", "l", .x))
