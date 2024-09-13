@@ -6,6 +6,7 @@
 #' @importFrom mvbutils foodweb
 #' @importFrom xtable xtable print.xtable
 #' @importFrom texreg coeftostring
+#' @importFrom Hmisc latexTranslate
 .datatable.aware = T
 
 
