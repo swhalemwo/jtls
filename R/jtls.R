@@ -10,6 +10,13 @@
 .datatable.aware = T
 
 
+#' returns T if for each element of x that is included in y
+#'
+#' @param x a vector 
+#' @param y a vector
+#' @export
+'%!in%' <- function(x,y)!('%in%'(x,y))
+
 #' generate list of directory for a project
 #'
 #' @param dir_proj the project directory, use full path just to be sure
@@ -1275,3 +1282,4 @@ xtsum <- function(data, varname, unit) {
     ## Output
     return(Tab)
 }
+
