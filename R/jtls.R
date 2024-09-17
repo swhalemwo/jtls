@@ -346,7 +346,7 @@ wd_nbrs <- function(dt_nbrs) {
 #' @export
 #' @param matched_call: just put match.call() there
 gw_fargs <- function(matched_call) {
-    callstr <- matched_call %>% deparse
+    callstr <- matched_call %>% deparse(width.cutoff = 500)
 
     fname <- as.character(matched_call[[1]])
 
