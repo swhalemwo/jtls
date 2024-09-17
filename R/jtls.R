@@ -646,7 +646,7 @@ parse_clgrph_todot <- function(l_gobjs) {
     ## cat(str_edges_parsed)
 
     graph_parsed <- sprintf("digraph D {\n %s %s %s \n %s \n %s \n %s }",
-                            "compound = true;\n splines = false; fontname=helvetica;\n", # graph attributes
+                            "compound = true;\n splines = true; fontname=helvetica;\n", # graph attributes
                             "node [shape=box, fontsize = 14, fontname=helvetica];\n", # node attributes
                             "edge [style = solid];\n",
                             str_cluster_parsed, str_nodes_unclustered_parsed, str_edges_parsed)
