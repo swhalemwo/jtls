@@ -496,9 +496,17 @@ gl_clgr_objs <- function() {
         ## for children that have gnrtdby attribute (as long as their parents have it too), 
         
         ## these are not links, these are the subgraphs -> don't bind them with the other links
-        dt_parchild_rels <- map(l_objs_gnrtdby, ~rbindlist(rec_attr_query(.x))) %>% list_rbind %>% funique %>%
-            .[, linktype := "par-child"]
+        dt_parchild_rels_prep <- map(l_objs_gnrtdby, ~rbindlist(rec_attr_query(.x))) %>% list_rbind
 
+        ## also generate some empty dt_parchild_rels if there are none
+        ## FIXME: this is refered later on
+        if (nrow(dt_parchild_rels_prep) > 0) {
+            dt_parchild_rels <- dt_parchild_rels_prep %>% funique %>% .[, linktype := "par-child"]
+        } else {
+            dt_parchild_rels <- data.table(item = character(), parent = character(),
+                                           linktype = character(), display_name = character())
+        }
+        
         ## rec_attr_query(l_objs_gnrtdby[[1]])
 
     } else if (len(l_objs_gnrtdby) == 0) {
@@ -508,10 +516,18 @@ gl_clgr_objs <- function() {
         
 
     ## evaluate the farg_calls file (input arguments)
-    dt_fargs <- fread(paste0(c_dirs$misc, "farg_calls.csv"))[, .(caller = fname, called = param_value)] %>%
-        unique %>% 
-        .[is.na(as.logical(called))] %>% # filter out logical switches
-        .[, linktype := "fun-obj"]
+
+    f_farg_calls <- paste0(c_dirs$misc, "farg_calls.csv")
+
+    if (file.exists(f_farg_calls)) {
+        dt_fargs <- fread(f_farg_calls)[, .(caller = fname, called = param_value)] %>%
+            unique %>% 
+            .[is.na(as.logical(called))] %>% # filter out logical switches
+            .[, linktype := "fun-obj"]
+    } else {
+        dt_fargs <- data.table(caller = character(), called = character(), linktype = character())
+    }
+        
 
     ## combine into object-funtion links
     dt_obfn_links <- rbind(dt_gnrtdby, dt_fargs)
