@@ -375,7 +375,7 @@ gl_funlinks <- function() {
     fw <- mvbutils::foodweb(plotting = F, where = 1) # funs = ls())
 
 
-    funcs_to_yeet <- c("atb", "adt","len", "print.data.table", "print_data_table", "adf", "achr", "anum",
+    funcs_to_yeet <- c("atb", "adt", "len", "print.data.table", "print_data_table", "adf", "achr", "anum",
                        "gw_fargs", "gl_funlinks", "gl_funmat", "gg_clgrph", "gc_dirs", "gc_plts", "gd_nbrs",
                        "gl_clgr_objs", "gc_clgrphattrs", "gc_tbls", "gc_vvs")
 
