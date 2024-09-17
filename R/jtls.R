@@ -375,9 +375,9 @@ gl_funlinks <- function() {
     fw <- mvbutils::foodweb(plotting = F, where = 1) # funs = ls())
 
 
-    funcs_to_yeet <- .c(atb, adt,len, print.data.table, print_data_table, adf, achr, anum, gw_fargs, gl_funlinks,
-                        gl_funmat, gg_clgrph, gc_dirs, gc_plts, gd_nbrs, gl_clgr_objs, gc_clgrphattrs,
-                        gc_tbls, gc_vvs)
+    funcs_to_yeet <- c("atb", "adt","len", "print.data.table", "print_data_table", "adf", "achr", "anum",
+                       "gw_fargs", "gl_funlinks", "gl_funmat", "gg_clgrph", "gc_dirs", "gc_plts", "gd_nbrs",
+                       "gl_clgr_objs", "gc_clgrphattrs", "gc_tbls", "gc_vvs")
 
     dt_funmat_edges_prep <- fw$funmat[rownames(fw$funmat) %!in% funcs_to_yeet, # yeet unneeded rows
                                       colnames(fw$funmat) %!in% funcs_to_yeet] %>%  # yeet unneeded columns
@@ -501,7 +501,7 @@ gl_clgr_objs <- function() {
         ## also generate some empty dt_parchild_rels if there are none
         ## FIXME: this is refered later on
         if (nrow(dt_parchild_rels_prep) > 0) {
-            dt_parchild_rels <- dt_parchild_rels_prep %>% funique %>% .[, linktype := "par-child"]
+            dt_parchild_rels <- dt_parchild_rels_prep %>% unique %>% .[, linktype := "par-child"]
         } else {
             dt_parchild_rels <- data.table(item = character(), parent = character(),
                                            linktype = character(), display_name = character())
@@ -541,7 +541,7 @@ gl_clgr_objs <- function() {
         dt_parchild_rels[, .(item, parent, display_name)][., on = .(item = node)]
 
     ## need to create the fake cluster nodes: to get 
-    dt_clusters <- dt_nodes[!is.na(parent), .(unq_parent = funique(parent))] %>%
+    dt_clusters <- dt_nodes[!is.na(parent), .(unq_parent = unique(parent))] %>%
         .[, cluster := paste0("cluster_", unq_parent)]
 
     ## add cluster info to the cluster nodes
@@ -1219,7 +1219,7 @@ gt_reg <- function(dt_coef, dt_gof, dt_vrblinfo, dt_ctgterm_lbls, dt_gof_cfg, md
         .[order(vrblgrp, term)]
         
     ## select columns
-    dt_coef_wide <- dt_coef_wide_prep[, c("term_lbl", funique(dt_coef$mdl_name)), with = F] %>%
+    dt_coef_wide <- dt_coef_wide_prep[, c("term_lbl", unique(dt_coef$mdl_name)), with = F] %>%
         cbind(grp_filler = "", .) %>%
         .[, term_lbl := latexTranslate(term_lbl)]
 
