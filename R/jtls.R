@@ -354,12 +354,16 @@ gw_fargs <- function(matched_call) {
     fargs_str <- substring(callstr, nchar(fname) + 2, nchar(callstr)-1) # remove function name and brackets
 
     ## parse function arguments
-    dt_fargs <- strsplit(fargs_str, ",")[[1]] %>% 
-        lapply(\(x) strsplit(x, "=")[[1]] %>% trimws %>%
-                setNames(c("param_name", "param_value")) %>% as.list) %>% rbindlist
-
+    ## arguments are split on first equal sign, so args with an equal sign (e.g. dt[dd == 2]) preserved
+    dt_fargs_prep <- strsplit(fargs_str, ",")[[1]] %>% 
+        lapply(\(x) strsplit(sub("=", "splitmehere", x), "splitmehere")[[1]] %>% trimws %>%
+                    setNames(c("param_name", "param_value")) %>% as.list) %>% rbindlist
+    
+    ## clean up all kinds of weird param_values
+    
     ## reorder columns
-    dt_fargs <- dt_fargs[, .(fname = fname, param_name, param_value)]
+    dt_fargs <- dt_fargs_prep[, .(fname = fname, param_name, param_value = gsub("\\[.*?\\]", "", param_value))] %>%
+        .[, param_value := gsub('"', "", param_value)]
 
     fwrite(dt_fargs, paste0(c_dirs$misc, "farg_calls.csv"), append = T)
 }
