@@ -815,13 +815,21 @@ wtbl <- function(tblname, c_tbls = do.call("gc_tbls", c_tblargs)) {
     1;1;1;1;1;1;1;1;1;1;1;1;1;1;1;1;1;1;1;1;1;1;1;1;1;1;1;
     
     filename_tex <- paste0(chuck(c_dirs, "tbls"), tblname, "_wcpF.tex")
+
+    
     
     ## normal process
     ## get table
     tx <- chuck(l_tbls, tblname)
     
+    c_scalebox <- ifelse("scalebox" %in% names(tx), chuck(tx, "scalebox"), 1)
+    c_tabenv <- ifelse("tabenv" %in% names(tx), chuck(tx, "tabenv"), "tabular")
+    c_size <- ifelse("size" %in% names(tx), chuck(tx, "size"), 1)
+
     ## process the table result into xtable
-    tx_procd <- xtable(tx$dt_fmtd, caption = tx$caption, align = tx$align_cfg,
+    tx_procd <- xtable(tx$dt_fmtd,
+                       caption = tx$caption,
+                       align = tx$align_cfg,
                        label = paste0("tbl:", tblname)) # adjust caption for pandoc compatibility
 
     ## create config that can be called by print.xtable
@@ -829,7 +837,16 @@ wtbl <- function(tblname, c_tbls = do.call("gc_tbls", c_tblargs)) {
                        file = filename_tex,
                        sanitize.text.function = identity,
                        add.to.row = tx$add_to_row,
+                       tabular.environment = c_tabenv,
+                       size = c_size,
                        hline.after = tx$hline_after)
+
+    if (c_scalebox != 1) {
+        tx_towrite <- c(tx_towrite, list(scalebox = c_scalebox))
+    }
+
+    if (c_scalebox != 1 & c_tabenv == "longtable") {stop("scalebox and longtable don't go together")}
+    
     
     do.call("print.xtable", tx_towrite)
 
@@ -1098,7 +1115,7 @@ gc_signote <- function(se_mention, ncol) {
                             "\\textsuperscript{**}p $<$ 0.01;",
                             "\\textsuperscript{*}p $<$ 0.05.")
 
-    sig_note <- sprintf("\\hline \n \\multicolumn{%s}{l}{\\footnotesize{%s}}\n", ncol, sig_note_vlus)
+    sig_note <- sprintf("\\hline \n \\multicolumn{%s}{l}{\\footnotesize{%s}} \\\\ \n", ncol, sig_note_vlus)
 
     return(sig_note)    
 
