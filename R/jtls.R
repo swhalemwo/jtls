@@ -1104,7 +1104,29 @@ gc_signote <- function(se_mention, ncol) {
 
 }
 
+#' generate spanner for grouping columns
+#'
+#' uses multicolumn to generate additional line
+#' @param spanner_lbls vector of labels for the spanner text
+#' @param spanner_lengths vector of column lengths for each spanner
+#' @export
+#' @return string with multicolumn-spanner information, to be added to at_to_row
+gc_spanner <- function(spanner_lbls, spanner_lengths) {
+    1;1;1;1;1;1;1;1;1;1;1;1;1;1;1;1;1;1;1;1;1;1;1;1;1;1;1;
+    
+    lbls_spanner <- map2(spanner_lbls, spanner_lengths, ~sprintf("\\multicolumn{%s}{c}{%s}", .y, .x)) %>%
+        paste0(collapse = " & ")
 
+    cmidrules <- map2(spanner_lengths, cumsum(spanner_lengths),
+                      ~sprintf("\\cmidrule(r){%s-%s}", .y - .x + 1, .y)) %>%
+        paste0(collapse = "")
+
+    spanner <- paste0(lbls_spanner, " \\\\ \n", cmidrules)
+
+    return(spanner)
+    
+
+}
 
 #' generates the column labels/headers with multicolumn
 #'
