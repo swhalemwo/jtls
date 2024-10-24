@@ -316,8 +316,8 @@ gc_refplt <- function() {
 
     do.call("gc_plts", list()) %>%
         imap(~.x[c("width", "caption")]) %>% rbindlist(idcol = "pltname") %>%
-        .[, .(nbr_fmt = sprintf("\\ref{fig:%s}", pltname),
-              nbr_name=  paste0("refplt_", pltname),
+        .[, .(nbr_name=  paste0("refplt_", pltname),
+              nbr_fmt = sprintf("\\ref{fig:%s}", pltname),
               grp = "figlbls")]
 }
     
