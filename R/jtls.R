@@ -297,7 +297,7 @@ gplt <- function(pltname, c_plts = do.call("gc_plts", c_pltargs)) {
 gc_ynkplt <- function() {
     do.call("gc_plts", list()) %>% 
         ## gc_plts() %>%
-        imap(~.x[.c(width, caption)]) %>% rbindlist(idcol = "pltname") %>% # height not needed
+        imap(~.x[c("width", "caption")]) %>% rbindlist(idcol = "pltname") %>% # height not needed
         .[, macro :=
                 sprintf(paste0('(eval (concat "#+label: fig:%s\\n" "#+caption: %s\\n" ',
                                '"#+attr_latex: :width %scm\\n" "[[file:../figures/%s]]"))'),
@@ -315,7 +315,7 @@ gc_ynkplt <- function() {
 gc_refplt <- function() {
 
     do.call("gc_plts", list()) %>%
-        imap(~.x[.c(width, caption)]) %>% rbindlist(idcol = "pltname") %>%
+        imap(~.x[c("width", "caption")]) %>% rbindlist(idcol = "pltname") %>%
         .[, .(nbr_fmt = sprintf("\\ref{fig:%s}", pltname),
               nbr_name=  paste0("refplt_", pltname),
               grp = "figlbls")]
