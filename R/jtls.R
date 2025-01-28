@@ -1310,6 +1310,49 @@ gt_reg <- function(dt_coef, dt_gof, dt_vrblinfo, dt_ctgterm_lbls, dt_gof_cfg, md
 
 }
 
+#' generate a plain summary table: just pass as is, with proper rounding and formatting
+#'
+#' @param dt_plain table to print
+#' @param b_landscape bool whether to use landscape
+#' @return a jtbl 
+#' @export
+gt_plain <- function(dt_plain, b_landscape = F) {
+    if (as.character(match.call()[[1]]) %in% fstd){browser()}
+    
+
+    l_b_numvrbls <- sapply(dt_plain, is.numeric) # bool whether a variable is numeric
+    l_numvrbls <- names(dt_plain)[l_b_numvrbls] # list of numeric variables
+    l_charvrbls <- names(dt_plain)[!l_b_numvrbls] # list of character variablesg
+
+    l_numvrbls_chr <- paste0(l_numvrbls, "_chr") # intermediate group for num -> char conversion
+    l_vrbls <- names(dt_plain) # all ze names
+
+    ## convert 
+    dt_fmtd <- dt_plain %>% copy %>%
+        .[, (l_numvrbls_chr) := map(.SD, ~format(.x, digits = 3)), .I, .SDcols = l_numvrbls] %>%
+        .[, (l_numvrbls) := NULL] %>%
+        setnames(l_numvrbls_chr, l_numvrbls) %>%
+        .[, (l_charvrbls) := map(.SD, latexTranslate), .SDcols = l_charvrbls] %>% # ensure latex
+        .[, .SD, .SDcols = l_vrbls]
+
+    c_colnames <- names(dt_fmtd) %>% gc_colnames(., setNames(.,.))
+
+    c_atr <- list(
+        pos = list(-1),
+        command = c_colnames)
+
+    list(dt_fmtd = dt_fmtd,
+         ## align_cfg = c("l", "l", rep("r", 4), rep("l", 3)),
+         align_cfg = c("l", ifelse(l_b_numvrbls, "r", "l")),
+         hline_after = c(0, nrow(dt_plain)),
+         add_to_row = c_atr,
+         ## number_cols = c(F, rep(T, 4)),
+         number_cols = l_b_numvrbls,
+         landscape = b_landscape)
+    
+}
+
+
 
 #' generate information on within and between variation, similar to Stata's `xtsum` command
 #' 
