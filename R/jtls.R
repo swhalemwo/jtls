@@ -406,9 +406,14 @@ rec_attr_query <- function(item_name, parent = "global", prevlinks = list()) {
     
     ## doesn't seem like get() supports nested children %>% (ab)use eval(parse())
     subitem_names_all <- eval(parse(text = sprintf("names(%s)", item_name)))
-        
-    ## reconstruct full item paths
-    subitem_fullpaths <- paste0(fifelse("$" %in% item_name, parent, item_name), "$", subitem_names_all)
+    
+    if (length(subitem_names_all) > 0) {
+    
+        ## reconstruct full item paths
+        subitem_fullpaths <- paste0(fifelse("$" %in% item_name, parent, item_name), "$", subitem_names_all)
+    } else {
+        subitem_fullpaths <- c()
+    }
     
     ## keep those that have a gnrtdby attribute: first construct filter
     rel_fltr <- map_vec(subitem_fullpaths, ~!is.null(attr(eval(parse(text = .x)), "gnrtdby")))
