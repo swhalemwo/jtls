@@ -111,7 +111,6 @@ f4 <- function(x) {
     y <- x+5
     z <- y+y %>% sqrt %>% adt
 
- 
     return(z)
 }
 
@@ -132,14 +131,80 @@ printer_x <- function() print(x)
 
 trace(f4, tracer = helper, at =1)
 trace(f4, helper2, at= 4)
+untrace(f4)
+
+library(methods)
 
 f4(3)
-as.list(body(f4))
+bf4 <- body(f4)
 
+strx <- "function(x) {x + 5
+    y <- x+5
+    z <- y+y %>% sqrt %>% adt
+    return(z)
+}"
+
+f4 <- function(x) {
+    y <- x+5
+    z <- y+y %>% sqrt %>% adt
+
+    return(z)
+}
+
+
+
+
+## shift the instructions by one, duplicating the first real one (second technical one, first technical is {
+for (i in len(body(f4)):2) {
+    body(f4)[[i+1]] <- body(f4)[[i]]
+}
+
+
+
+body(f4)[[2]] <- substitute(gw_fargs(match.call()))
+f4(10)
+
+
+
+## strangely only for-loop works, map/walk doesn't
+## walk(len(body(f4)):1, ~(body(f4)[[.x+1]] <- body(f4)[[.x]]))
+## walk(len(body(f4)):2, ~assign(body(f4)[[.x+1]], body(f4)[[.x]]))
+
+getSrcFilename(f4)
+
+
+
+map(len(body(f4)):1)
+
+f4b <- str2lang(strx)
+assign("f4b", eval(str2lang(strx)))
+
+
+f4b(3)
+
+lx <- as.list(body(f4))
+
+lex <- as.expression(lx)
+
+body(f4)[[2]][[3]][[3]] <- substitute(2+5)
+f4
+
+
+
+
+f5 <- function(dd = 5) {
+    dd + 10
+}
+
+
+
+
+expression({x+2})
 
 (ess-command ".ess_dbg_flag_for_debuging('f4')\n")
 
 .ess_dbg_flag_for_debuging('f4')
+.ess_dbg
 
 (ess-command "print(4)")
 
