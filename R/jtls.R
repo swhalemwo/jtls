@@ -1256,8 +1256,9 @@ gt_reg <- function(dt_coef, dt_gof, dt_vrblinfo, dt_ctgterm_lbls, dt_gof_cfg, md
     ## add variable group to categorical variables
     ## use update join for categorical terms, then rbind with variable info (continuous variables)
     dt_termlbls <- copy(dt_ctgterm_lbls)[dt_vrblinfo,
-                                               `:=`("vrblgrp" = i.vrblgrp, "vrblgrp_lbl" = i.vrblgrp_lbl),
-                                               on = "vrbl"] %>% 
+                                         `:=`("vrblgrp" = i.vrblgrp, "vrblgrp_lbl" = i.vrblgrp_lbl),
+                                         on = "vrbl"] %>%
+        .[, .(term, vrbl, term_lbl, vrblgrp, vrblgrp_lbl)] %>% 
         rbind(dt_vrblinfo[, .(term = vrbl, vrbl, term_lbl = vrbl_lbl, vrblgrp, vrblgrp_lbl)])
         
     ## merge with dt_coefs, format cells, cast into wide, order
@@ -1289,7 +1290,7 @@ gt_reg <- function(dt_coef, dt_gof, dt_vrblinfo, dt_ctgterm_lbls, dt_gof_cfg, md
     dt_gof_long <- suppressWarnings(melt(dt_gof, id.vars = "mdl_name",
                           variable.name = "gof_name", value.name = "gof_value")) %>%
         dt_gof_cfg[., on = "gof_name"] %>%
-        .[, gof_fmt := format(gof_value, digits = max(digits,1), nsmall = digits), .(gof_name, mdl_name)]
+        .[, gof_fmt := format(gof_value, digits = max(digits,1), nsmall = digits, scientific = F), .I]
 
     ## cast gof into wide, order doesn't matter for rbind
     dt_gof_wide <- dcast(dt_gof_long, gof_name + gof_lbl ~ mdl_name, value.var = "gof_fmt") %>%
