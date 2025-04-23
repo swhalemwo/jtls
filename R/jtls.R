@@ -1451,15 +1451,33 @@ prep_sqlitedb <- function(dbx, dfx, table_title, constraints, insert_data = F) {
 #' @return list of (user-defined) functions to be tracked
 gl_funcs_to_track <- function(l_srcfiles) {
 
+    ## browser()
     ## get all functions defined globally
     l_global_funcs <- c(lsf.str(globalenv())) %>% setNames(.,.)
+    lapply(l_global_funcs, \(x) print(sprintf("global func: %s", x)))
 
+    ## getSrcFilename(gd_mtcars_filtered)
+
+    ## l_funcs_wfile <- lapply(l_global_funcs, \(x) getSrcFilename(get(x)))
+    ## getSrcFilename(gd_mtcars_base)
+
+
+    l_funcs_wfile <- lapply(l_global_funcs, \(f) do.call(getSrcFilename, list(x=f), envir = globalenv()))
+    
     ## l_srcfiles <- c("ac_funcs.R")
     ## see where they are defined
-    l_funcs_wfile <- imap(l_global_funcs, ~getSrcFilename(get(.x)))
+    ## l_funcs_wfile <- imap(l_global_funcs, ~getSrcFilename(get(.x)))
+    ## l_funcs_wfile <- imap(l_global_funcs, ~getSrcFilename(get(.x)))
+    lapply(1:10, \(x) print(sprintf("number with file: %s", x)))
+    lapply(l_funcs_wfile, \(x) print(sprintf("func with file: %s", x)))
+    
 
     ## keep those that are defined in the source files
-    keep(l_funcs_wfile, ~any(grepl(l_srcfiles, .x)))
+    l_funcs_filtered <- keep(l_funcs_wfile, ~len(.x) != 0) %>% # first filter out those where file is unclear
+        keep(~any(sapply(l_srcfiles, \(f) grepl(.x, f))))    
+
+    lapply(l_funcs_filtered, \(x) print(sprintf("func filtered: %s", x)))
+
 }
 
 
@@ -1474,7 +1492,8 @@ track_function <- function(fx, fname) {
     len_func <- length(bx)
 
     ## keep track of how many statements have been added
-    cnt_added <- 0
+    gwfargs_added <- 0
+    gnrtdby_added <- 0
 
     ## add the gw_fargs call, but only if there are no arguments
     if (length(formals(fx)) > 0) {
@@ -1485,7 +1504,7 @@ track_function <- function(fx, fname) {
         }
 
         body(fx)[[2]] <- substitute(gw_fargs(match.call()))
-        cnt_added <- 1
+        gwfargs_added <- 1
     }
 
     ## add gnrtdby attribute, unless functions returns plots or tables
@@ -1496,15 +1515,19 @@ track_function <- function(fx, fname) {
         }
 
         ## add attributed generated before return statement
-        ret_obj <- as.character(body(fx)[[len_func + cnt_added]])[2] # first get object which is returned
-        body(fx)[[len_func + cnt_added + 1]] <- body(fx)[[len_func + cnt_added]] # add another return statement
+        ret_obj <- as.character(body(fx)[[len_func + gwfargs_added]])[2] # first get object which is returned
+        body(fx)[[len_func + gwfargs_added + 1]] <- body(fx)[[len_func + gwfargs_added]] # add another return statement
         
         ## generate the generated_by expression
         gnrtd_by_expr <- str2lang(sprintf("attr(%s, \"gnrtdby\") <- as.character(match.call()[[1]])", ret_obj))
         ## overwrite the first return statement with expression
-        body(fx)[[len_func + cnt_added]] <- gnrtd_by_expr
+        body(fx)[[len_func + gwfargs_added]] <- gnrtd_by_expr
+
+        gnrtdby_added <- 1
 
     }
+
+    print(sprintf("%s, gwfargs: %s, gnrtdby: %s", fname, gwfargs_added, gnrtdby_added))
 
     ## overwrite original function
     assign(fname, fx, envir = globalenv())
@@ -1518,7 +1541,8 @@ track_function <- function(fx, fname) {
 #' @export 
 track_sourcefiles <- function(l_sourcefiles) {
     ## get functions to track
-    l_funcs_to_track <- jtls:::gl_funcs_to_track(l_sourcefiles) %>% names
+    l_funcs_to_track <- gl_funcs_to_track(l_sourcefiles) %>% names
+    lapply(l_funcs_to_track, \(x) print(sprintf("func to track %s", x)))
 
     ## track them
     lapply(l_funcs_to_track, \(x) track_function(get(x), x))
