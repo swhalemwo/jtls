@@ -1325,17 +1325,20 @@ gt_reg <- function(dt_coef, dt_gof, dt_vrblinfo, dt_ctgterm_lbls, dt_gof_cfg, md
 gt_plain <- function(dt_plain, b_landscape = F) {
     if (as.character(match.call()[[1]]) %in% fstd){browser()}
     
-
+    
     l_b_numvrbls <- sapply(dt_plain, is.numeric) # bool whether a variable is numeric
     l_numvrbls <- names(dt_plain)[l_b_numvrbls] # list of numeric variables
     l_charvrbls <- names(dt_plain)[!l_b_numvrbls] # list of character variablesg
 
+    
     l_numvrbls_chr <- paste0(l_numvrbls, "_chr") # intermediate group for num -> char conversion
     l_vrbls <- names(dt_plain) # all ze names
 
     ## convert 
     dt_fmtd <- dt_plain %>% copy %>%
-        .[, (l_numvrbls_chr) := map(.SD, ~format(.x, digits = 3)), .I, .SDcols = l_numvrbls] %>%
+        .[, (l_numvrbls_chr) := map(.SD, ~format(.x, digits = 3, big.mark = " ",
+                                                 nsmall = fifelse(.x > 100, 0, 1))),
+          .I, .SDcols = l_numvrbls] %>%
         .[, (l_numvrbls) := NULL] %>%
         setnames(l_numvrbls_chr, l_numvrbls) %>%
         .[, (l_charvrbls) := map(.SD, latexTranslate), .SDcols = l_charvrbls] %>% # ensure latex
