@@ -1290,7 +1290,8 @@ gt_reg <- function(dt_coef, dt_gof, dt_vrblinfo, dt_ctgterm_lbls, dt_gof_cfg, md
     dt_gof_long <- suppressWarnings(melt(dt_gof, id.vars = "mdl_name",
                           variable.name = "gof_name", value.name = "gof_value")) %>%
         dt_gof_cfg[., on = "gof_name"] %>%
-        .[, gof_fmt := format(gof_value, digits = max(digits,1), nsmall = digits, scientific = F), .I]
+        .[, gof_fmt := format(gof_value, digits = max(digits,1), nsmall = digits, scientific = F), .I] %>%
+        .[, gof_lbl := latexTranslate(gof_lbl)]
 
     ## cast gof into wide, order doesn't matter for rbind
     dt_gof_wide <- dcast(dt_gof_long, gof_name + gof_lbl ~ mdl_name, value.var = "gof_fmt") %>%
