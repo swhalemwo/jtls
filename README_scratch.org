@@ -1,0 +1,91 @@
+** sketch plotting framework
+#+begin_src dot :file custom-plotting-framework.pdf
+
+digraph D {
+  node [shape = "box"]
+  gp_X[label="gp_X: \ntakes in data, produces ggplot"]
+  gc_plts[label="gc_plts:\n configuration for plots"]
+  gplt[label="gplt:\ndo.call(gp_X)"]
+
+  data -> gp_X
+  other_params -> gp_X
+
+  gc_plts -> data
+  gc_plts -> other_params
+  gc_plts -> gplt
+  gp_X -> gplt
+  gplt -> l_plts [label = "creates plot and assigns it to"]
+  l_plts -> dplt [label = "reads from and displays"]
+  l_plts -> wplt [label = "reads from and writes to file"]
+
+}
+
+
+
+#+end_src
+
+#+RESULTS:
+[[file:custom-plotting-framework.pdf]]
+
+
+
+
+** word compability
+Sometimes I have to produce word documents so that people can leave comments in them. Unfortunately, working with word in any kind of pipeline is fraught with difficulties, such as
+- cross-references
+- tables formatting gets messed up
+- pdfs are not rendering
+
+To deal with these issues, jtls includes a number of functionality to deal with word documents.
+
+For preparation, tables and figures are generated also in word-compatible format; for figures this means as .pngs, for tables this means no D-columns, and columns with numbers are wrapped in dollar signs to ensure math mode. 
+
+To generate a word document, an pre-export hook replaces the normal tables with word-compatible tables and the pdfs with pngs, then exports this file to `.tex`. `Pandoc` is then used to convert the `.tex` file to `.html`, which is then converted to `.docx`. I found that this process is able to produce a .docx with cross-references, figures and tables, which is mostly readable (imperfections are incorrect formatting of some in-text references, incorrect placement of the bibliography, and tables not looking great as column sizes, column alignments and consequently row heights are disregarded by word).
+
+
+
+
+** overall things/functions that need to be defined
+
+- gc_plts
+- gc_tbls
+- l_plts
+- l_tbls
+
+
+
+things to do: make table framework more coherent
+
+new functions:
+- gc_signote: generate significance note
+- gc_grpstrs: generates group strings of variable blocks: to be added to add_to_row
+- gc_colnames: generates column names, uses multicolumn{1} to not get fucked with by dcolumn
+- fmt_cell: format cell (coef, se, pvalue), has some different options
+- fmt_pvlu: generate stars
+
+
+
+
+** custom number reference framework
+- gc_refplt: generate the in-text references to plots (from a globally available `gc_plts` function)
+- gc_ynkplt: generate the yank-plots (spaces where the actual plots appear)
+- gc_reftbl: generate in-text references to tables
+- wd_nbrs: write the data.table of number in the actual org-file to org-macros
+
+
+** callgraph
+
+- gl_clgr_objs: generate list of callgraph objects
+  - edges
+  - nodes
+- gg_clgrph: generate a with 
+- gw_fargs
+- gl_funlinks
+- gwd_clgrph: generate, write, display callgraph
+
+todos:
+- case of len(l_objs_gnrtdby) > 0 == F in gl_clgrph_objs is buggy
+  - empty dt doesn't match with full dt (columns different)
+  - true condition (global objects present) produces objects that are needed overall, not just in TRUE case
+  - some other error when there are global objects, idk
+
