@@ -27,6 +27,31 @@ main idea: plots are defined as output of functions (gp_X) which take data and a
 - ~dplt~: retrieve a plot from ~l_plots~ and display it
 - ~wplt~: write a plot to file (both pdf and png)
 
+Example: 
+#+begin_src R
+library(jtls)
+
+## specify plot info in gc_plts
+gc_plts <- function() {
+    list(
+        p_mpg_dist = list(mtcars = quote(mtcars),
+                          caption = "mpg vs disp",
+                          width = 6, height = 4))
+}
+
+## generate example plot
+gp_mpg_dist <- function(mtcars) {
+
+    ggplot(mtcars, aes(x = mpg, y = disp)) + geom_point()
+}
+
+l_plts <- list() # set up plot list
+
+
+gplt("p_mpg_dist") # generate plot
+dpltR("p_mpg_dist") # display plot
+gwdplt("p_mpg_dist") # write to file and show
+#+end_src
 
 
 some helper functions for common tasks:
