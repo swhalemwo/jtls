@@ -79,6 +79,7 @@ similar idea as plotting framework, uses ~xtable~:
 - ~wtbl~: parses l_tbls object to xtable, then writes to tex file and cropped pdf file
 - ~dtbl~: displays cropped pdf file
 
+** Emacs integration WIP
 
 ** callgraph WIP
 
@@ -88,14 +89,13 @@ similar idea as plotting framework, uses ~xtable~:
 
 ** other functionality WIP
 - number formatting
-- view_xl
+- ~view_xl~
 - iso3c recoding
 - regression tables
-- xtsum
+- ~xtsum~
 - sqlite prep
 
 
 ** limitations
-Several warnings are in order:
 - These functions are highly idiosyncratically based on my experience, and in particular the software I use. Some components may have wider applicability, but others, in particular anything related to Emacs/ESS, are so tailored to my workflow that you may find them not helpful.
 - While these functions facilitate updating of numbers, figures and tables, their substantive meaning may change. Validation of these numbers, via manual inspection or automated testing, always has to be kept in mind. 
