@@ -1,6 +1,6 @@
 Package: jtls
-Title: provides convenience functions
-Version: 0.0.0.9000
+Title: convenience functions by J
+Version: 0.1
 Authors@R: 
     person("Johannes", "Aengenheyster", , "jojo.ae@hotmail.de", role = c("aut", "cre"),
            comment = c(ORCID = "0009-0007-6063-8830"))
