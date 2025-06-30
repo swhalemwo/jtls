@@ -61,6 +61,14 @@ similar idea as plotting framework, uses ~xtable~:
 
 ** number tracking WIP
 
+** other functionality WIP
+- number formatting
+- view_xl
+- iso3c recoding
+- regression tables
+- xtsum
+- sqlite prep
+
 
 ** limitations
 Several warnings are in order:
