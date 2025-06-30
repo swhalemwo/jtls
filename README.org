@@ -1,4 +1,4 @@
-* collection of tools that J finds useful
+* J's toolbox
 
 ** Motivation
 
@@ -12,9 +12,6 @@ main features:
 - avoid typos: no more manual copying of numbers from the terminal into the text
 
 
-Several warnings are in order:
-- These functions are highly idiosyncratically based on my experience, and in particular the software I use. Some components may have wider applicability, but others, in particular anything related to Emacs/ESS, are so tailored to my workflow that you may find them not helpful.
-- While these functions facilitate updating of numbers, figures and tables, their substantive meaning may change. Validation of these numbers, via manual inspection or automated testing, always has to be kept in mind. 
 
 
 tools included: 
@@ -25,37 +22,37 @@ tools included:
 
 [[file:custom-plotting-framework.png]]
 
-main idea: plots are defined as output of functions (gp_X) which take data and additional configuration (specified in a function called `gc_plots`). This allows to interact with a small number of functions, which only need the name of the plot to process it: 
-- gplt: generate a plot and store it in a global `l_plots` list
-- dplt: retrieve a plot from `l_plots` and display it
-- wplt: write a plot to file (both pdf and png)
+main idea: plots are defined as output of functions (gp_X) which take data and additional configuration (specified in a function called ~gc_plots~). This allows to interact with a small number of functions, which only need the name of the plot to process it: 
+- ~gplt~: generate a plot and store it in a global ~l_plots~ list
+- ~dplt~: retrieve a plot from ~l_plots~ and display it
+- ~wplt~: write a plot to file (both pdf and png)
 
 
 
 some helper functions for common tasks:
-- gdplt: generate plot and display in R
-- dpltF: display plot written to pdf file (with zathura)
-- dpltR: display plot in R 
-- gwdplt: generate, write, display plot as pdf
-- wdplt: write and display plot 
+- ~gdplt~: generate plot and display in R
+- ~dpltF~: display plot written to pdf file (with zathura)
+- ~dpltR~: display plot in R 
+- ~gwdplt~: generate, write, display plot as pdf
+- ~wdplt~: write and display plot 
 
 
 
 ** custom table framwork
-similar idea as plotting framework: 
+similar idea as plotting framework, uses ~xtable~: 
 
-- gt_X: takes in data, generates table list of
-  - dt_fmd: data.table with cells
-  - hline_after: positioning of hlines (some hlines are also provided by add_to_row)
-  - add_to_row: rows added afterwards: list of pos and command of add_to_row strings
+- ~gt_X~: takes in data, generates table list of
+  - ~dt_fmd~: data.table with cells
+  - ~hline_after~: positioning of hlines (some hlines are also provided by ~add_to_row~)
+  - ~add_to_row~: rows added afterwards: list of pos and command of ~add_to_row~ strings
     used for column names (top), significance notes (bottom), variable group strings (inbetween)
-  - align_cfg: latex-table columm specification, can include dcolumn types
-  - number_cols: for wcpT, these the values in columns get wrapped in dollar sign to ensure math mode, which is somehow required for tables to work when exporting to word
-  - optional: landscape, default = F. whether to flip the page horizontal, to be used for wide tables
+  - ~align_cfg~: latex-table columm specification, can include dcolumn types
+  - ~number_cols~: for wcpT, these the values in columns get wrapped in dollar sign to ensure math mode, which is somehow required for tables to work when exporting to word
+  - optional: ~landscape~, default value F. whether to flip the page horizontal, to be used for wide tables
     
-- gtbl: generates table-object list, places it in l_tbls
-- wtbl: parses l_tbls object to xtable, then writes to tex file and cropped pdf file
-- dtbl: displays cropped pdf file
+- ~gtbl~: generates table-object list, places it in l_tbls
+- ~wtbl~: parses l_tbls object to xtable, then writes to tex file and cropped pdf file
+- ~dtbl~: displays cropped pdf file
 
 
 ** callgraph WIP
@@ -65,6 +62,7 @@ similar idea as plotting framework:
 ** number tracking WIP
 
 
-
-
-
+** limitations
+Several warnings are in order:
+- These functions are highly idiosyncratically based on my experience, and in particular the software I use. Some components may have wider applicability, but others, in particular anything related to Emacs/ESS, are so tailored to my workflow that you may find them not helpful.
+- While these functions facilitate updating of numbers, figures and tables, their substantive meaning may change. Validation of these numbers, via manual inspection or automated testing, always has to be kept in mind. 
