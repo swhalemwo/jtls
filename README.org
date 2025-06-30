@@ -23,6 +23,8 @@ tools included:
 
 ** custom plotting framework
 
+[[file:custom-plotting-framework.png]]
+
 main idea: plots are defined as output of functions (gp_X) which take data and additional configuration (specified in a function called `gc_plots`). This allows to interact with a small number of functions, which only need the name of the plot to process it: 
 - gplt: generate a plot and store it in a global `l_plots` list
 - dplt: retrieve a plot from `l_plots` and display it
@@ -37,7 +39,7 @@ some helper functions for common tasks:
 - gwdplt: generate, write, display plot as pdf
 - wdplt: write and display plot 
 
-[[file:custom-plotting-framework.pdf]]
+
 
 ** custom table framwork
 similar idea as plotting framework: 
@@ -56,7 +58,11 @@ similar idea as plotting framework:
 - dtbl: displays cropped pdf file
 
 
+** callgraph WIP
 
+** word export WIP
+
+** number tracking WIP
 
 
 

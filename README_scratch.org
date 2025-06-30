@@ -1,5 +1,5 @@
 ** sketch plotting framework
-#+begin_src dot :file custom-plotting-framework.pdf
+#+begin_src dot :file custom-plotting-framework.png
 
 digraph D {
   node [shape = "box"]
@@ -25,7 +25,7 @@ digraph D {
 #+end_src
 
 #+RESULTS:
-[[file:custom-plotting-framework.pdf]]
+[[file:custom-plotting-framework.png]]
 
 
 
