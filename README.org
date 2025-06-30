@@ -34,13 +34,13 @@ library(jtls)
 ## specify plot info in gc_plts
 gc_plts <- function() {
     list(
-        p_mpg_dist = list(mtcars = quote(mtcars),
+        p_mpg_disp = list(mtcars = quote(mtcars),
                           caption = "mpg vs disp",
                           width = 6, height = 4))
 }
 
 ## generate example plot
-gp_mpg_dist <- function(mtcars) {
+gp_mpg_disp <- function(mtcars) {
 
     ggplot(mtcars, aes(x = mpg, y = disp)) + geom_point()
 }
@@ -48,9 +48,9 @@ gp_mpg_dist <- function(mtcars) {
 l_plts <- list() # set up plot list
 
 
-gplt("p_mpg_dist") # generate plot
-dpltR("p_mpg_dist") # display plot
-gwdplt("p_mpg_dist") # write to file and show
+gplt("p_mpg_disp") # generate plot
+dpltR("p_mpg_disp") # display plot
+gwdplt("p_mpg_disp") # write to file and show
 #+end_src
 
 
