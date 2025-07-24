@@ -1554,3 +1554,39 @@ track_sourcefiles <- function(l_sourcefiles) {
     return(invisible(TRUE))
 }
 
+
+
+#' filter a dt based on grepl and all columns, intended for interactive use with r-filter-dt,
+#' inspired by fzf
+#'
+#' @param df data.frame to filter
+#' @param query some search term, can be multiple (split on space)
+#' @param filter_state how query is applied to columns
+#' @param l_cols list of columns to display
+#' @param verbose whether to print, used for debugging
+#' @export
+filter_dt <- function(df, query, filter_state, l_cols, verbose = F) {
+
+
+    ## filter down rows of data table based on query match
+    print(paste0(query, " - ", filter_state))
+
+    dtx <- as.data.table(df)
+    
+    ## if no colums are specified, use all
+    if (is.null(l_cols)) {
+        l_cols <- names(dtx)
+    }
+    ## split query terms on spae
+    l_query_split <- unlist(strsplit(query, " "))
+
+    ## construct basic mask: check which rows are met
+    dt_mask <- map(char_vars(dtx, return = "names"),
+        ~dtx[, pall(lapply(l_query_split, \(term) grepl(term, get(.x), ignore.case = T)))]) %>%
+        Reduce(\(x,y) cbind(x,y), .) %>% adt
+        
+    ## print(l_cols)
+    
+    dtx[rowSums(dt_mask) > 0, .SD, .SDcols = l_cols] %>% print.data.table
+    
+}
