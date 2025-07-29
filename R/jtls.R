@@ -8,6 +8,8 @@
 #' @importFrom texreg coeftostring
 #' @importFrom Hmisc latexTranslate
 #' @importFrom DBI dbDataType dbSendQuery dbRemoveTable dbAppendTable
+#' @importFrom collapse char_vars
+#' @importFrom kit pall
 .datatable.aware = T
 
 
