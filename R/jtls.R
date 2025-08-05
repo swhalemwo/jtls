@@ -1592,3 +1592,22 @@ filter_dt <- function(df, query, filter_state, l_cols, verbose = F) {
     dtx[rowSums(dt_mask) > 0, .SD, .SDcols = l_cols] %>% print.data.table
     
 }
+
+
+#' return largest objects in global environment
+#' 
+#' @export
+gd_objsize <- function() {
+
+    dt_objsize <- data.table(obj = ls(envir = globalenv())) %>%
+        .[, size := object.size(get(obj)), .I] %>%
+        .[, size_fmt := format(size, units = "GB")] %>% 
+        .[order(-size)]
+
+    
+    
+    print(sprintf("total size: %s GB", dt_objsize[, round(sum(size)/1024^3, 3)]))
+
+    return(dt_objsize)
+    
+}
