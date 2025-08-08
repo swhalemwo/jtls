@@ -1334,7 +1334,13 @@ gt_plain <- function(dt_plain, b_landscape = F) {
     l_charvrbls <- names(dt_plain)[!l_b_numvrbls] # list of character variablesg
 
     
-    l_numvrbls_chr <- paste0(l_numvrbls, "_chr") # intermediate group for num -> char conversion
+    if (length(l_numvrbls) > 0) {
+            l_numvrbls_chr <- paste0(l_numvrbls, "_chr")
+    } else {
+        l_numvrbls_chr <- character(0)
+    }
+
+    # l_numvrbls_chr <- ifelse(l_numvrbls), paste0(l_numvrbls, "_chr"), NULL) # intermediate group for num -> char conversion
     l_vrbls <- names(dt_plain) # all ze names
 
     ## convert 
