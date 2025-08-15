@@ -1617,3 +1617,11 @@ gd_objsize <- function() {
     return(dt_objsize)
     
 }
+
+
+#' show pass secrets
+#'
+#' @export
+show_pass_secret <- function(secret) {
+    system(sprintf("pass show %s", secret), intern = T)
+}
