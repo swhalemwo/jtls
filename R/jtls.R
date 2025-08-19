@@ -7,9 +7,12 @@
 #' @importFrom xtable xtable print.xtable
 #' @importFrom texreg coeftostring
 #' @importFrom Hmisc latexTranslate
-#' @importFrom DBI dbDataType dbSendQuery dbRemoveTable dbAppendTable
+#' @importFrom DBI dbDataType dbSendQuery dbRemoveTable dbAppendTable dbConnect dbGetQuery
 #' @importFrom collapse char_vars
 #' @importFrom kit pall
+#' @importFrom nodbi src_sqlite docdb_create
+#' @importFrom tidygeocoder geocode
+#' @importFrom RSQLite SQLite
 .datatable.aware = T
 
 
@@ -1624,4 +1627,87 @@ gd_objsize <- function() {
 #' @export
 show_pass_secret <- function(secret) {
     system(sprintf("pass show %s", secret), intern = T)
+}
+
+
+
+
+#' create sqlite json db
+#' @param dbname file to sqlite db
+#' @param container_key sqlite container key
+#' @export
+nodb_creator <- function(dbname, container_key) {
+    src <- src_sqlite(dbname)
+
+    docdb_create(src, container_key, value = NULL)
+}
+
+#' inserting json rows into sqlitedb
+#' @param dbname filepath for sqlite db
+#' @param container_key sqlite container key
+#' @param data data to insert
+nodb_inserter <- function(dbname, container_key, data) {
+    src <- src_sqlite(dbname)
+
+    docdb_create(src, container_key, data)
+}
+
+
+#' geocode a chunk of a data.table
+#' requires that gc_geocode_cfg is defined somewhere: needs to return a list of the elements to the geocode function
+#'
+#' @param data_to_geocode_chunk data.table with some rows to be geocoded
+#' @param container_ke sqlite container key
+#' @param dbname filepath for sqlite db
+gwd_geocode_chunker <- function(data_to_geocode_chunk, container_key, dbname) {
+    #' geocode a chunk of data and insert it to the database
+    Sys.sleep(0.5)
+    ## get geocode settings and merge with actual geocoded data
+    l_args <- gc_geocode_cfg() %>% chuck(container_key) %>% c(list(.tbl = data_to_geocode_chunk))
+    
+    ## actual geocoding
+    dt_geocoded <- do.call(geocode, l_args)
+
+    ## merge IDs back: addr gets returneda as address %>% can return it
+    dt_geocoded_wid <- merge(dt_geocoded, data_to_geocode_chunk[, .(ID, address = addr)], on = "address")
+
+    
+    print(dt_geocoded_wid)
+    nodb_inserter(dbname, container_key, dt_geocoded_wid)
+
+    return(invisible(T))
+
+}
+
+
+#' geocode function: check which stuff has been geocoded, then geocode the rest
+#' uses chunking to be restartable
+#' write results to sqlite json for later flattening
+#'
+#' @param dt_to_geocode data.table with data
+#' @param container_key sqlite container key
+#' @param dbname filepath to sqlitedb
+#' @export 
+gwd_geocode <- function(dt_to_geocode, container_key, dbname) {
+
+    ## get existing data
+    src_nosql <- src_sqlite(dbname)
+    src_sql <- dbConnect(SQLite(), dbname)
+
+    ## check which IDs are already there
+    cmd_IDs_present <- sprintf("select %s.json ->> 'ID' as ID from %s", container_key, container_key)
+    dt_IDs_present <- dbGetQuery(src_sql, cmd_IDs_present) %>% adt
+    dt_to_geocode_filtered <- dt_to_geocode[!dt_IDs_present, on = "ID"]
+
+    print(sprintf("data size: %s, already coded: %s, left to code: %s",
+                  dt_to_geocode[, .N], dt_IDs_present[, .N], dt_to_geocode_filtered[, .N]))
+
+    ## split into chunks
+    l_dt_to_geocode <- split(dt_to_geocode_filtered, 1:dt_to_geocode[, (.N/5)])
+
+    map(l_dt_to_geocode, gwd_geocode_chunker, container_key, dbname)
+    
+    ## get arguments
+    
+    return(invisible(T))
 }
