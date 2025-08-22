@@ -1711,3 +1711,40 @@ gwd_geocode <- function(dt_to_geocode, container_key, dbname) {
     
     return(invisible(T))
 }
+
+
+
+#' turn geocoded json table into a flat table
+#' for now makes a bunch of simplifying assupmtions:
+#' 1. only first line by ID
+#' 2. only columns that can be modelled as flat vectors (no lists, listed dfs etc)
+#' maybe will have time to deal with all those later on
+#'
+#' @export
+gwd_flat_geocode <- function(container_key, db_name) {
+    
+    
+    src <- src_sqlite(db_name)
+    src2 <- dbConnect(SQLite(), db_name)
+
+    dt_json <- docdb_get(src, key = container_key) %>% adt
+
+    l_vrlbs_tokeep <- sapply(dt_json, class) %>% keep(~.x %!in% c("list")) %>% names
+    
+    ## dt_json[, .SD[nrow(.SD) > 1], ID][, .(ID, score)] %>% print(n=80)
+    ## dt_json[ID == 51370, .(coords = sprintf("%s %s", lat, long), address, score)]
+    
+    dt_to_insert <- dt_json[, head(.SD, 1), ID, .SDcols = setdiff(l_vrlbs_tokeep, "ID")]
+    
+    ## cmd_setup <- sprintf("CREATE TABLE %s (%s)"
+    ##                      col_prefix, dbDataType(dbx, id_vlu), col_prefix,l_schemas[1])
+
+    name_flat_table <- paste0(container_key, "_flat")
+
+    if (dbExistsTable(src2, name_flat_table)) dbExecute(src2, sprintf("drop table %s", name_flat_table))
+    
+    dbCreateTable(src2, name = name_flat_table, dt_to_insert)
+    dbAppendTable(src2, name = name_flat_table, dt_to_insert)
+
+    
+}
