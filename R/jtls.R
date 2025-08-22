@@ -1668,8 +1668,10 @@ gwd_geocode_chunker <- function(data_to_geocode_chunk, container_key, dbname) {
     ## actual geocoding
     dt_geocoded <- do.call(geocode, l_args)
 
+    col_addr <- chuck(l_args, "address")
+
     ## merge IDs back: addr gets returneda as address %>% can return it
-    dt_geocoded_wid <- merge(dt_geocoded, data_to_geocode_chunk[, .(ID, address = addr)], on = "address")
+    dt_geocoded_wid <- merge(dt_geocoded, data_to_geocode_chunk[, .(ID, address = get(col_addr))], on = "address")
 
     
     print(dt_geocoded_wid)
