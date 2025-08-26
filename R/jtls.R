@@ -10,7 +10,7 @@
 #' @importFrom DBI dbDataType dbSendQuery dbRemoveTable dbAppendTable dbConnect dbGetQuery
 #' @importFrom collapse char_vars
 #' @importFrom kit pall
-#' @importFrom nodbi src_sqlite docdb_create
+#' @importFrom nodbi src_sqlite docdb_create docdb_get
 #' @importFrom tidygeocoder geocode
 #' @importFrom RSQLite SQLite
 .datatable.aware = T
@@ -1705,7 +1705,7 @@ gwd_geocode <- function(dt_to_geocode, container_key, dbname) {
                   dt_to_geocode[, .N], dt_IDs_present[, .N], dt_to_geocode_filtered[, .N]))
 
     ## split into chunks
-    l_dt_to_geocode <- split(dt_to_geocode_filtered, 1:dt_to_geocode[, (.N/5)])
+    l_dt_to_geocode <- split(dt_to_geocode_filtered, 1:dt_to_geocode_filtered[, (.N/5)])
 
     map(l_dt_to_geocode, gwd_geocode_chunker, container_key, dbname)
     
