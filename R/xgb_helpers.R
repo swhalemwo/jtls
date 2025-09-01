@@ -307,8 +307,10 @@ gd_hyperparam_tuning <- function() {
 gl_mat_train_test <- function(dt_grid_wfeat, l_cols_feat, frac_test = 0.8) {
         
     ## train_index <- createDataPartition(dt_grid_wfeat$match, p = frac_test, list = FALSE)
-    train_index <- sample(1:dt_grid_wfeat[, .N], size =  dt_grid_wfeat[, .N]*frac_test,
-                          prob = rep(frac_test, dt_grid_wfeat[, .N]))
+    
+    train_index <- sample(1:dt_grid_wfeat[, .N], size =  dt_grid_wfeat[, .N]*frac_test)
+    
+    
     ## sample 
 
     dt_grid_train <- dt_grid_wfeat[train_index, ]
