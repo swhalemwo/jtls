@@ -13,6 +13,8 @@
 #' @importFrom nodbi src_sqlite docdb_create docdb_get
 #' @importFrom tidygeocoder geocode
 #' @importFrom RSQLite SQLite
+#' @importFrom xgboost xgboost xgb.train xgb.DMatrix getinfo xgb.importance
+#' @importFrom stringdist stringdist
 .datatable.aware = T
 
 

@@ -1,4 +1,6 @@
 
+
+
 ## overall FIXME
 ## - replace dt_grid with something more general (not all (training) data is grid)
 ## - generalize for more than stringdist values
@@ -8,8 +10,8 @@
 #'
 #' @param l_feats list of features
 gl_modnoq_qmod <- function(l_feats) {
-    #' construct feature vectors of which features to generate:
-    #' for no-qgram a vector, for qgram methods dt_qmod (with name and q spec)
+    ## construct feature vectors of which features to generate:
+    ## for no-qgram a vector, for qgram methods dt_qmod (with name and q spec)
     
 
     ## sort into q and noq
@@ -27,7 +29,7 @@ gl_modnoq_qmod <- function(l_feats) {
 
 
 
-#' train and write a smaller XGB model (less features) based of full model
+#' train and write a smaller XGB model (most influential features) based of full model
 #'
 #' @param r_xgb full model
 #' @param dt_grid_blank data.table with strings to match
@@ -35,7 +37,6 @@ gl_modnoq_qmod <- function(l_feats) {
 #' @export
 gr_xgb_smol <- function(r_xgb, dt_grid_blank, c_params) {
     ## browser()
-    #' generate a smaller model from r_xgb with only most influential predictors
     ## FIXME: data dependencies still rely on globals    
 
     dt_topfeat <- gd_xgb_topfeat(r_xgb)
@@ -78,8 +79,8 @@ gr_xgb_smol <- function(r_xgb, dt_grid_blank, c_params) {
 #' @param r_xgb XGB model
 #' @param thld threshold of cumulative gain
 gd_xgb_topfeat <- function(r_xgb, thld = 0.8) {
-    #' use smaller, faster model: only take most influential predictors
-    #' feature construction is expensive so can use that to filter down number of cases to check
+    ## use smaller, faster model: only take most influential predictors
+    ## feature construction is expensive so can use that to filter down number of cases to check
 
     dt_topfeat <- xgb.importance(model = r_xgb) %>% .[, cum_gain := cumsum(Gain)] %>% .[cum_gain < thld]
 
@@ -93,7 +94,7 @@ gd_xgb_topfeat <- function(r_xgb, thld = 0.8) {
 #' @param dtx data.table with name1, name2 columns
 #' @param dt_qmod data.table specifying q-gram strdists: name and q spec
 gd_strfeat_wq <- function(dtx, dt_qmod) {
-    #' generate string features for string similarities with q
+    ## generate string features for string similarities with q
 
     dt_strfeat_wq <- dtx %>% copy %>%
         .[, paste0(dt_qmod[, sprintf("strdist_%s_%s", mod, q)]) :=
@@ -108,7 +109,7 @@ gd_strfeat_wq <- function(dtx, dt_qmod) {
 #' @param dtx data.table with name1, name2
 #' @param l_mod_noq vector arguments to stridst
 gd_strfeat_noq <- function(dtx, l_mod_noq) {
-    #' generate string similarity features for which there is no q (only single input)
+    ## generate string similarity features for which there is no q (only single input)
     dt_strfeat_noq <- dtx %>% copy %>%
         .[, paste0("strdist_", l_mod_noq) :=
                 map(l_mod_noq, ~stringdist(tolower(name1),
@@ -127,7 +128,7 @@ gd_strfeat_noq <- function(dtx, l_mod_noq) {
 #' @param dt_qmod data.table specifying q-gram strdists: name and q spec
 #' @param l_mod_noq vector of string dists not using qgram
 gd_grid_wfeat <- function(dt_grid_blank, name1, name2, dt_qmod = NULL, l_mod_noq = NULL) {
-    #' construct features for similarity matching
+    ## construct features for similarity matching
     
     dt_grid_blank %>% setnames(old = c(name1, name2), new = c("name1", "name2"))
     
@@ -214,7 +215,7 @@ gd_xgb_assess <- function(r_xgb, mat_test, thld = 0.5, return_data = F) {
 #' @param name2 name2 column
 #' @param thld threshold for filtering
 gd_dt_smol <- function(dt_grid_blank, r_xgb_smol, name1, name2, thld = 0.0001) {
-    #' idea: apply a smaller model first (less time spent constructing features, which is expensive)
+    ## idea: apply a smaller model first (less time spent constructing features, which is expensive)
 
     ## first see which columns are needed
     # l_topfeat <- gd_xgb_topfeat(r_xgb)[, Feature]
@@ -304,9 +305,11 @@ gd_hyperparam_tuning <- function() {
 #' @param frac_test fraction to use as training data
 #' @export
 gl_mat_train_test <- function(dt_grid_wfeat, l_cols_feat, frac_test = 0.8) {
-    #' split data into test and training data
-    
-    train_index <- createDataPartition(dt_grid_wfeat$match, p = frac_test, list = FALSE)
+        
+    ## train_index <- createDataPartition(dt_grid_wfeat$match, p = frac_test, list = FALSE)
+    train_index <- sample(1:dt_grid_wfeat[, .N], size =  dt_grid_wfeat[, .N]*frac_test,
+                          prob = rep(frac_test, dt_grid_wfeat[, .N]))
+    ## sample 
 
     dt_grid_train <- dt_grid_wfeat[train_index, ]
     dt_grid_test <- dt_grid_wfeat[-train_index, ]
@@ -331,11 +334,8 @@ gl_mat_train_test <- function(dt_grid_wfeat, l_cols_feat, frac_test = 0.8) {
 #' @param c_params nested list: general XGB params, also params arg for xgb.train
 #' @export
 gr_xgb <- function(dt_grid_blank, c_params) {
-    #' train XGB model based on string similarity between '
-    #dt_grid_blank: data with names (name1, name2 specified in
-    #c_params) and match column ' returns trained model
     
-    ## FEATURE: will have to be generalized to accomodate more than string similarity features
+    
     ## can't assume binary classification
     dt_grid_wfeat <- gd_grid_wfeat(dt_grid_blank,
                                    chuck(c_params, "name1"),
