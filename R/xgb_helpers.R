@@ -214,6 +214,7 @@ gd_xgb_assess <- function(r_xgb, mat_test, thld = 0.5, return_data = F) {
 #' @param name1 name1 column
 #' @param name2 name2 column
 #' @param thld threshold for filtering
+#' @export
 gd_dt_smol <- function(dt_grid_blank, r_xgb_smol, name1, name2, thld = 0.0001) {
     ## idea: apply a smaller model first (less time spent constructing features, which is expensive)
 
