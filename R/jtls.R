@@ -62,9 +62,12 @@ view_xl <- function(data, browser_xl = "localc") {
 
 #' some sorting function
 #'
-#' pick all obs that adhere to priority_vec[pos], but only if not also matched by higher priority
+#' pick all obs that adhere to priority_vec \[ pos \], but only if not also matched by higher priority
 #' to be used with lapply(seq_along(priority_vec))
 #' needs source column that corresponds to values in priority_vec
+#' @param dfx data.frame to sort
+#' @param priority_vec vector of priorities
+#' @param pos position
 #' @export
 sort_by_priority <- function(dfx, priority_vec, pos) {
     if (as.character(match.call()[[1]]) %in% fstd){browser()}
