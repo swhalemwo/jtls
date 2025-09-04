@@ -217,20 +217,26 @@ gd_xgb_assess <- function(r_xgb, mat_test, thld = 0.5, return_data = F) {
 #' @export
 gd_dt_smol <- function(dt_grid_blank, r_xgb_smol, name1, name2, thld = 0.0001) {
     ## idea: apply a smaller model first (less time spent constructing features, which is expensive)
+    ## FIXME name is confusing AF: not necessary smol, any model can be passed; also should include predict
 
     ## first see which columns are needed
     # l_topfeat <- gd_xgb_topfeat(r_xgb)[, Feature]
     # l_topfeat <- xgb.importance(model = r_xgb_smol)[, Feature]
     l_topfeat <- r_xgb_smol$feature_names
 
-    ## FIXME: replace with gl_modnoq_qmod
+    ## FIXME: replace with gl_modnoq_qmod -> check, cleanup
 
     ## sort into q and noq
-    l_mod_qindex <- grepl("\\d", l_topfeat)
-    l_mod_noq <- l_topfeat[!l_mod_qindex] %>% gsub("strdist_", "", .)
+    ## l_mod_qindex <- grepl("\\d", l_topfeat)
+    ## l_mod_noq <- l_topfeat[!l_mod_qindex] %>% gsub("strdist_", "", .)
 
-    dt_qmod <- data.table(mod = sub("strdist_([a-z_]+)_\\d+$", "\\1", l_topfeat[l_mod_qindex]),
-                          q = sub(".*_(\\d+)$", "\\1", l_topfeat[l_mod_qindex]))
+    ## dt_qmod <- data.table(mod = sub("strdist_([a-z_]+)_\\d+$", "\\1", l_topfeat[l_mod_qindex]),
+    ##                       q = sub(".*_(\\d+)$", "\\1", l_topfeat[l_mod_qindex]))
+
+    l_modnoq_qmod <- gl_modnoq_qmod(l_topfeat)
+    l_mod_noq <- l_modnoq_qmod %>% chuck("l_mod_noq")
+    dt_qmod <- l_modnoq_qmod %>% chuck("dt_qmod")
+
 
     ## construct feature dt
     dt_feat_smol <- gd_grid_wfeat(copy(dt_grid_blank), name1, name2, dt_qmod = dt_qmod, l_mod_noq = l_mod_noq)
