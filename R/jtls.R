@@ -747,8 +747,10 @@ rcd_iso3c_reg6 <- function(iso3cs) {
     ## if (as.character(match.call()[[1]]) %in% fstd){browser()}
     ## 1;1;1;1;1;1;1;1;1;1;1;1;1;1;1;1;1;1;1;1;1;1;1;1;1;1;1;
 
-    regs_unreg <- countrycode(iso3cs, "iso3c", "un.region.name", custom_match = c("TWN"= "Asia"))
-    regs_unregsub <- countrycode(iso3cs ,"iso3c", "un.regionsub.name", custom_match = c("TWN"= "Asia"))
+    regs_unreg <- countrycode(iso3cs, "iso3c", "un.region.name",
+                              custom_match = c("TWN"= "Asia", "XKX" = "Europe"))
+    regs_unregsub <- countrycode(iso3cs ,"iso3c", "un.regionsub.name",
+                                 custom_match = c("TWN"= "Asia", "XKX" = "Europe"))
 
     ## split americas into north and south
     locs_americas <- which(regs_unregsub %in% c("Latin America and the Caribbean", "Northern America"))
