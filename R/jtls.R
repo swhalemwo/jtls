@@ -1755,3 +1755,15 @@ gwd_flat_geocode <- function(container_key, db_name) {
 
     
 }
+
+#' vector to data.table helper function
+#'
+#' @param v vector
+#' @param name name for name column
+#' @param vlu name for value column
+#' @export
+vadt <- function(v, name = "name", vlu = "vlu") {
+        dtx <- data.table(namex = names(v), vlux = v) %>%
+            setnames(old = c("namex", "vlux"), new = c(name, vlu))
+        return(dtx)
+}
