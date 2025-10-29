@@ -1159,8 +1159,13 @@ gc_spanner <- function(spanner_lbls, spanner_lengths) {
     lbls_spanner <- map2(spanner_lbls, spanner_lengths, ~sprintf("\\multicolumn{%s}{c}{%s}", .y, .x)) %>%
         paste0(collapse = " & ")
 
-    cmidrules <- map2(spanner_lengths, cumsum(spanner_lengths),
-                      ~sprintf("\\cmidrule(r){%s-%s}", .y - .x + 1, .y)) %>%
+    ## cmidrules <- map2(spanner_lengths, cumsum(spanner_lengths),
+    ##                   ~ifelse(.x > 1, sprintf("\\cmidrule(r){%s-%s}", .y - .x + 1, .y), "") %>%
+
+    cmidrules <- pmap(list(splen = spanner_lengths, spcumlen = cumsum(spanner_lengths), lbl = spanner_lbls),
+                       \(splen, spcumlen, lbl)
+                       ifelse(trimws(lbl) != "", sprintf("\\cmidrule(r){%s-%s}", spcumlen - splen + 1, spcumlen),
+                              "")) %>%
         paste0(collapse = "")
 
     spanner <- paste0(lbls_spanner, " \\\\ \n", cmidrules)
@@ -1176,12 +1181,13 @@ gc_spanner <- function(spanner_lbls, spanner_lengths) {
 #' @param colnames vector of the columns in the order they appear in the table
 #' @param collbs named vector with colname as key, and column label as value
 #' @param hline_above flag whether to put hlines before the column names, default TRUE. can be switched off when using a multi-line header (spanner), in that case the hlines have to be provided by that or manually otherwise.
+#' @param align how to align multicolumns: either single character (then gets recycled) or vector (for separate alignment)
 #' @return formatted string, to be added to add_to_row
 #' @export
-gc_colnames <- function(col_names, col_lbls, hline_above = T) {
+gc_colnames <- function(col_names, col_lbls, hline_above = T, align = "l") {
 
-    c_colnames_fmtd <- map(col_names,
-                           ~sprintf("\\multicolumn{1}{l}{%s}", latexTranslate(chuck(col_lbls, .x)))) %>%
+    c_colnames_fmtd <- purrr::map2(col_names, align,
+                           ~sprintf("\\multicolumn{1}{%s}{%s}", .y, latexTranslate(chuck(col_lbls, .x)))) %>%
         paste0(collapse = " & ")
 
     if (hline_above) {
