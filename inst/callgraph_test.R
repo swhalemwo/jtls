@@ -201,12 +201,12 @@ f5 <- function(dd = 5) {
 
 expression({x+2})
 
-(ess-command ".ess_dbg_flag_for_debuging('f4')\n")
+## (ess-command ".ess_dbg_flag_for_debuging('f4')\n")
 
 .ess_dbg_flag_for_debuging('f4')
 .ess_dbg
 
-(ess-command "print(4)")
+## (ess-command "print(4)")
 
 
 my_function <- function(x) {
@@ -214,3 +214,8 @@ my_function <- function(x) {
     return(result)
 }
 
+
+
+dt_deps <- dependencies() %>% adt
+
+dt_v8_deps <- tools::package_dependencies("V8", recursive = T, reverse = T)
