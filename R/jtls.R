@@ -1106,13 +1106,20 @@ fmt_cell <- function(coef, se, pvalue, type) {
 #' @param grp the variable to group by, should already be the grp_label
 #' @export
 #' @return data.table with columns grpstr (the group latex string),  pos (its position) grp_intern (grp vrbl)
-gc_grpstrs <- function(dtx, grp, nbr_cols) {
+gc_grpstrs <- function(dtx, grp, nbr_cols, bold = T) {
     if (as.character(match.call()[[1]]) %in% fstd){browser()}
    
-    copy(dtx)[, nbr := 1:.N] %>%
+    
+
+    dtx <- copy(dtx)[, nbr := 1:.N] %>%
         .[, grp_intern := get(grp)] %>% # set up separate variable to still have NSE even when variable changes
-        .[, .(pos = min(nbr)-1), grp_intern] %>%
-        .[, grpstr := sprintf("\\multicolumn{%s}{l}{\\textbf{%s}} \\\\ \n", nbr_cols, grp_intern)]
+        .[, .(pos = min(nbr)-1), grp_intern]
+
+    if (bold) {
+        dtx[, grpstr := sprintf("\\multicolumn{%s}{l}{\\textbf{%s}} \\\\ \n", nbr_cols, grp_intern)]
+    } else {
+        dtx[, grpstr := sprintf("\\multicolumn{%s}{l}{%s} \\\\ \n", nbr_cols, grp_intern)]
+    }
         
 }
 
