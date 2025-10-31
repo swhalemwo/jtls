@@ -1778,3 +1778,44 @@ vadt <- function(v, name = "name", vlu = "vlu") {
             setnames(old = c("namex", "vlux"), new = c(name, vlu))
         return(dtx)
 }
+
+#' 2d index to 1d index
+#' used for dist matrixes
+#' @param i row index
+#' @param j col index
+#' @param dist_obj distance matrix
+#' @export
+i2d1d <- function (i, j, dist_obj) {
+    if (!inherits(dist_obj, "dist")) stop("please provide a 'dist' object")
+    n <- attr(dist_obj, "Size")
+    valid <- (i >= 1) & (j >= 1) & (i > j) & (i <= n) & (j <= n)
+    k <- (2 * n - j) * (j - 1) / 2 + (i - j)
+    k[!valid] <- NA_real_
+    k
+}
+
+#' 1D index to 2D index, used to get locations in distance matrix
+#' @param k 1d index
+#' @param dist_obj distance matrix
+#' @return two column matrices of indices, or labels if they exist
+#' @export
+i1d2d <- function (k, dist_obj) {
+    ## https://stackoverflow.com/questions/39005958/r-how-to-get-row-column-subscripts-
+    ## of-matched-elements-from-a-distance-matri
+    
+    if (!inherits(dist_obj, "dist")) stop("please provide a 'dist' object")
+    n <- attr(dist_obj, "Size")
+    valid <- (k >= 1) & (k <= n * (n - 1) / 2)
+    k_valid <- k[valid]
+    j <- rep.int(NA_real_, length(k))
+    j[valid] <- floor(((2 * n + 1) - sqrt((2 * n - 1) ^ 2 - 8 * (k_valid - 1))) / 2)
+    i <- j + k - (2 * n - j) * (j - 1) / 2
+
+    ## if matrix has labels, use them (they are char tho)
+    if ("Labels" %in% names(attributes(dist_obj))) {
+        lbls <- attributes(dist_obj)$Labels
+        cbind(lbls[i], lbls[j])
+    } else {
+        cbind(i, j)
+    }
+}
