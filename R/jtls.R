@@ -1737,7 +1737,7 @@ gwd_geocode <- function(dt_to_geocode, container_key, dbname) {
 #' 1. only first line by ID
 #' 2. only columns that can be modelled as flat vectors (no lists, listed dfs etc)
 #' maybe will have time to deal with all those later on
-#'
+#' also flattens by dropping/reindexing completely, not only new stuff.. maybe improve
 #' @export
 gwd_flat_geocode <- function(container_key, db_name) {
     
