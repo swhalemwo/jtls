@@ -1,6 +1,5 @@
 
 #' @import magrittr
-#' @import graph
 #' @import data.table
 #' @importFrom broom tidy glance
 #' @importFrom mvbutils foodweb
@@ -16,6 +15,8 @@
 #' @importFrom xgboost xgboost xgb.train xgb.DMatrix getinfo xgb.importance
 #' @importFrom stringdist stringdist
 .datatable.aware = T
+
+## ' @import graph
 
 
 #' returns T if for each element of x that is included in y
@@ -594,26 +595,26 @@ gl_clgr_objs <- function() {
 }
 
 
-#' generate a graph (Rgraphviz package)
-#'
-#' @param l_gobjs list of dataframes: nodes, edges
-#' @export
-#' @return graph object
-gg_clgrph <- function(l_gobjs) {
-    #' generate a new graph
-    #' l_gobjs: list of graph objects:
-    #' - nodes: dt with column node
-    #' - edges: dt with columns of caller/called
+## #' generate a graph (Rgraphviz package)
+## #'
+## #' @param l_gobjs list of dataframes: nodes, edges
+## #' @export
+## #' @return graph object
+## gg_clgrph <- function(l_gobjs) {
+##     #' generate a new graph
+##     #' l_gobjs: list of graph objects:
+##     #' - nodes: dt with column node
+##     #' - edges: dt with columns of caller/called
 
-    gx <- new("graphNEL", nodes = l_gobjs$nodes$node, edgemode = "directed")
-    ## just write shitty for-loop
-    for (i in seq(1,fnrow(l_gobjs$edges))) {
-        ## print(i)
-        gx <- addEdge(l_gobjs$edges[i, called], l_gobjs$edges[i, caller], gx)
-    }
+##     gx <- new("graphNEL", nodes = l_gobjs$nodes$node, edgemode = "directed")
+##     ## just write shitty for-loop
+##     for (i in seq(1,fnrow(l_gobjs$edges))) {
+##         ## print(i)
+##         gx <- addEdge(l_gobjs$edges[i, called], l_gobjs$edges[i, caller], gx)
+##     }
 
-    return(gx)
-}
+##     return(gx)
+## }
 
 
 #' custom parsing of l_gobjs (list of dts with nodes and edges) to dot language
@@ -686,12 +687,7 @@ gwd_clgrph <- function() {
     ## if (as.character(match.call()[[1]]) %in% fstd){browser()}
     ## 1;1;1;1;1;1;1;1;1;1;1;1;1;1;1;1;1;1;1;1;1;1;1;1;1;1;1;
 
-    ## old version based on Rgraphviz
-    ## px <- gl_clgr_objs() %>% gg_clgrph
-
-    ## pdf(paste0(c_dirs$figs, "callgraph.pdf"), height = 3, width = 6)
-    ## renderGraph(layoutGraph(px, attrs = gc_clgrphattrs()))
-    ## dev.off()
+    
 
     
 
