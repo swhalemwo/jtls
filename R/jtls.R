@@ -14,6 +14,7 @@
 #' @importFrom RSQLite SQLite
 #' @importFrom xgboost xgboost xgb.train xgb.DMatrix getinfo xgb.importance
 #' @importFrom stringdist stringdist
+#' @importFrom MASS kde2d
 .datatable.aware = T
 
 ## ' @import graph
@@ -1818,4 +1819,29 @@ i1d2d <- function (k, dist_obj) {
     } else {
         cbind(i, j)
     }
+}
+
+
+#' tidy interface for kde2d: reshape matrix to x-y-vlu data.table
+#' very comfy to use in j of data.table
+#' @param x vector of x 
+#' @param y vector of y
+#' @param ... additional args to kde2d
+#' @export
+kde2d_tidy <- function(x,y, ...) {
+ 
+    c(gx, gy, z) %<-% kde2d(x,y, ...)
+
+    dt_gx <- adt(gx)[, ix := 1:.N]
+    dt_gy <- adt(gy)[, iy := 1:.N]
+
+    ## i: index 
+    dt_z_long <- adt(z)[, ix := 1:.N] %>% melt(id.vars = "ix") %>%
+        .[, `:=`(iy = as.integer(gsub("V", "", variable)), variable = NULL)]
+
+    merge(dt_z_long, dt_gx, by = "ix") %>%
+        merge(dt_gy, by = "iy") %>%
+        .[, .(x=gx, y=gy, z = value)]
+    
+        
 }
