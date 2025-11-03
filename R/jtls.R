@@ -15,6 +15,7 @@
 #' @importFrom xgboost xgboost xgb.train xgb.DMatrix getinfo xgb.importance
 #' @importFrom stringdist stringdist
 #' @importFrom MASS kde2d
+#' @importFrom zeallot `%<-%`
 .datatable.aware = T
 
 ## ' @import graph
