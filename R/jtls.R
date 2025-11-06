@@ -1212,7 +1212,7 @@ gd_reg_coxph <- function(rx, mdl_name, unit_name = NULL) {
     1;1;1;1;1;1;1;1;1;1;1;1;1;1;1;1;1;1;1;1;1;1;1;1;1;1;1;
     ## browser()
     
-    l_gof_vrbls <- c("nobs", "nevent", "logLik", "AIC", "BIC", "mdl_name", "df")
+    l_gof_vrbls <- c("n", "nevent", "logLik", "AIC", "BIC", "mdl_name", "df")
 
     ## maybe using term is indeed better than variable, better way of dealing with categorical variables
     dt_coef <- broom::tidy(rx) %>% adt() %>%
