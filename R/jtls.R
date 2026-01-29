@@ -1854,3 +1854,64 @@ kde2d_tidy <- function(x,y, ...) {
 edge <- function(v) {
     strsplit(gsub("\\[|\\]|\\(", "", as.character(v[1]) ) , ",")[[1]] %>% lapply(as.numeric)
 }
+
+gn_se_grp <- function(vrbl, intr, mat_vcov) {
+    #' calculate SE of group slopes in interaction
+    # browser()
+    se_main <- sqrt(mat_vcov[vrbl, vrbl])
+    se_intr <- sqrt(mat_vcov[intr, intr])
+    cov_main_interaction <- mat_vcov[vrbl, intr]
+
+    combined_se <-  sqrt(se_main^2 + se_intr^2 + 2 * cov_main_interaction)
+    return(combined_se)
+}
+
+gd_intr_grp_slopes <- function(rx, vrbl, grp) {
+    #' get group slopes of interaction
+    #' grp must be a factor
+    
+    
+    ## manual chatgpt
+    coef_values <- coef(rx)
+
+    ## Extracting the coefficients 
+    beta_main <- coef_values[vrbl]
+    se_main <- fixest::se(rx)[vrbl]
+    
+    ## get the interaction terms: have grp variable and a ":"
+    l_interactions <- keep(names(coef_values), ~(grepl(grp, .x) & grepl(":", .x)) & grepl(vrbl, .x))
+    l_beta_interaction <- coef_values[l_interactions]
+
+    ## Calculating the slope for groups
+    l_slope_grp <- l_beta_interaction + beta_main
+
+
+    mat_vcov <- vcov(rx)
+    ## replace _scaled with nothing
+    colnames(mat_vcov) <- gsub("_scaled", "", colnames(mat_vcov))
+    rownames(mat_vcov) <- gsub("_scaled", "", rownames(mat_vcov))
+    
+    
+    ## combined_se2 <- sqrt(se_auc_turnover^2 + se_interaction^2 + 2 * cov_auc_interaction)
+    l_grp_se <- sapply(l_interactions, \(x) gn_se_grp(vrbl, x, mat_vcov))
+
+    levelnames <- insight::get_data(rx) %>% adt %>% .[, levels(get(grp))]
+    ## l_levelnames <- gsub(vrbl, "", l_interactions) %>% gsub(grp, "", .) %>% gsub(":", "", .)
+    
+    ## summary(rx) %>% str %>% print
+
+    ## manual comparison
+    ## rx <- lm(Sepal.Length ~ Petal.Width * Species, iris)
+    ## emtrends(rx, ~Species, var = "Petal.Width")
+
+    ## dt_iris <- adt(iris)[, Species := factor(Species)]
+    ## rx2 <- feols(Sepal.Length ~ Petal.Width * Species, dt_iris)
+    ## gd_intr_grp_slopes(rx2, "Petal.Width", "Species")
+
+    dt_slopes <- data.table(
+        category = levelnames,
+        estimate = c(beta_main, l_slope_grp),
+        se = c(se_main, l_grp_se),
+        vrbl = vrbl)
+    return(dt_slopes)
+}
