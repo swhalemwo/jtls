@@ -1846,3 +1846,11 @@ kde2d_tidy <- function(x,y, ...) {
     
         
 }
+
+#' get cut limits
+#' https://stackoverflow.com/questions/17601469/grabbing-edges-of-factor-after-cut-function
+#' @param v result of cut object
+#' @export
+edge <- function(v) {
+    strsplit(gsub("\\[|\\]|\\(", "", as.character(v[1]) ) , ",")[[1]] %>% lapply(as.numeric)
+}
