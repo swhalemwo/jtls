@@ -285,6 +285,8 @@ gplt <- function(pltname, c_plts = do.call("gc_plts", c_pltargs)) {
     if (as.character(match.call()[[1]]) %in% fstd){browser()}
     1;1;1;1;1;1;1;1;1;1;1;1;1;1;1;1;1;1;1;1;1;1;1;1;1;1;1;
 
+    print(sprintf("generating %s", pltname))
+    
     ## select pltname cfg'; strip caption, width, caption 
     c_plt <- chuck(c_plts, pltname) %>% .[names(.) %!in% c("caption", "width", "height")]
     
@@ -1855,6 +1857,10 @@ edge <- function(v) {
     strsplit(gsub("\\[|\\]|\\(", "", as.character(v[1]) ) , ",")[[1]] %>% lapply(as.numeric)
 }
 
+#' get the SE per group
+#' @param vrbl variable
+#' @param intr interaction
+#' @param mat_vcov variance-covariance matrix
 gn_se_grp <- function(vrbl, intr, mat_vcov) {
     #' calculate SE of group slopes in interaction
     # browser()
@@ -1866,9 +1872,13 @@ gn_se_grp <- function(vrbl, intr, mat_vcov) {
     return(combined_se)
 }
 
+#' generate group slopes for fixest interactions
+#' makes it relatively easy to compare effect sizes, rather manually add main effects + interactions
+#' @param rx fixest model
+#' @param vrbl variable to get slopes for
+#' @param grp grouping variable, must be factor
+#' @export
 gd_intr_grp_slopes <- function(rx, vrbl, grp) {
-    #' get group slopes of interaction
-    #' grp must be a factor
     
     
     ## manual chatgpt
