@@ -1132,7 +1132,7 @@ gc_grpstrs <- function(dtx, grp, nbr_cols, bold = T) {
 #' @return string of significance note
 gc_signote <- function(se_mention, ncol) {
       
-    se_note <- "standard errors in parantheses."
+    se_note <- "standard errors in parentheses."
 
     ## generate significance note
     sig_note_vlus <- paste0(fifelse(se_mention, se_note, ""),
